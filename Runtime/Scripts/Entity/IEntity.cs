@@ -15,5 +15,8 @@ namespace GameFramework
         Vector3 position { get; }
         Vector3 rotation { get; }
         IEnumerable<TComponent> components { get; }
+
+        void AttachComponent(TComponent component);
+        void DetachComponent(TComponent component);
     }
 }

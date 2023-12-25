@@ -13,5 +13,15 @@ namespace GameFramework
         public virtual Vector3 position { get; protected set; }
         public virtual Vector3 rotation { get; protected set; }
         public virtual IEnumerable<TComponent> components { get; protected set; }
+
+        public virtual void AttachComponent(TComponent component)
+        {
+            component.OnAttach(this as TEntity);
+        }
+
+        public virtual void DetachComponent(TComponent component)
+        {
+            component.OnDetach();
+        }
     }
 }
