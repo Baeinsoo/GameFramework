@@ -11,6 +11,7 @@ namespace GameFramework
         public class Time
         {
             public static long tick => Game.current.tickUpdater.tick;
+            public static double time => Game.current.tickUpdater.time;
             public static double elapsedTime => Game.current.tickUpdater.elapsedTime;
 
             /// <summary> Tick Delta Time </summary>

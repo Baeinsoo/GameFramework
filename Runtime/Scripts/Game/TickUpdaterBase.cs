@@ -11,6 +11,7 @@ namespace GameFramework
 
         public long tick { get; private set; }
         public double interval { get; private set; }
+        public double time => tick * interval;
         public double elapsedTime { get; protected set; }
 
         public long processibleTick
