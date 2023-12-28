@@ -14,7 +14,7 @@ namespace GameFramework
         string entityId { get; }
         Vector3 position { get; }
         Vector3 rotation { get; }
-        IEnumerable<TComponent> components { get; }
+        ICollection<TComponent> components { get; }
 
         void AttachComponent(TComponent component);
         void DetachComponent(TComponent component);

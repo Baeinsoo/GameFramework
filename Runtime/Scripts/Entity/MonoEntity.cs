@@ -12,7 +12,7 @@ namespace GameFramework
         public virtual string entityId { get; protected set; }
         public virtual Vector3 position { get; protected set; }
         public virtual Vector3 rotation { get; protected set; }
-        public virtual IEnumerable<TComponent> components { get; protected set; }
+        public virtual ICollection<TComponent> components { get; protected set; }
 
         public virtual void AttachComponent(TComponent component)
         {
