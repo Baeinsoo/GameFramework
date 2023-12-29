@@ -14,9 +14,11 @@ namespace GameFramework
         public virtual Vector3 rotation { get; protected set; }
         public virtual ICollection<TComponent> components { get; protected set; }
 
-        public virtual void AttachComponent(TComponent component)
+        public virtual T AttachComponent<T>(T component) where T : TComponent
         {
             component.OnAttach(this as TEntity);
+
+            return component;
         }
 
         public virtual void DetachComponent(TComponent component)

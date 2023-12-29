@@ -16,7 +16,7 @@ namespace GameFramework
         Vector3 rotation { get; }
         ICollection<TComponent> components { get; }
 
-        void AttachComponent(TComponent component);
+        T AttachComponent<T>(T component) where T : TComponent;
         void DetachComponent(TComponent component);
     }
 }
