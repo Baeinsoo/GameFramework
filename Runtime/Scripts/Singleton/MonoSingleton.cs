@@ -26,17 +26,24 @@ namespace GameFramework
             }
         }
 
-        protected virtual void Awake()
+        protected virtual void OnAwaked() { }
+        protected virtual void OnDestroyed() { }
+
+        private void Awake()
         {
             RemoveDuplicates();
+
+            OnAwaked();
         }
 
-        protected virtual void OnDestroy()
+        private void OnDestroy()
         {
             if (_instance == this)
             {
                 _instance = null;
             }
+
+            OnDestroyed();
         }
 
         private static void Instantiate()
