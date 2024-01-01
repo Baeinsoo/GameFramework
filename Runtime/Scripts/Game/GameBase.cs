@@ -8,11 +8,16 @@ namespace GameFramework
     public abstract class GameBase : MonoBehaviour, IGame
     {
         public ITickUpdater tickUpdater { get; private set; }
+        public IInputProcessor inputProcessor { get; private set; }
+        public IGameProcessor gameProcessor { get; private set; }
 
         public virtual void Initialize()
         {
-            this.tickUpdater = GetComponent<ITickUpdater>();
-            this.tickUpdater.onTick += OnTick;
+            tickUpdater = GetComponent<ITickUpdater>() ?? throw new ArgumentNullException(nameof(ITickUpdater));
+            tickUpdater.onTick += OnTick;
+
+            inputProcessor = GetComponent<IInputProcessor>() ?? throw new ArgumentNullException(nameof(IInputProcessor));
+            gameProcessor = GetComponent<IGameProcessor>() ?? throw new ArgumentNullException(nameof(IGameProcessor));
         }
 
         public virtual void Deinitialize()
@@ -20,6 +25,9 @@ namespace GameFramework
             tickUpdater.onTick -= OnTick;
             tickUpdater.Deinitialize();
             tickUpdater = null;
+
+            inputProcessor = null;
+            gameProcessor = null;
         }
 
         public void Run()
