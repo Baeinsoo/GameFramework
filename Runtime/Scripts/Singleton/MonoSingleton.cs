@@ -31,7 +31,14 @@ namespace GameFramework
 
         private void Awake()
         {
-            RemoveDuplicates();
+            if (_instance == null)
+            {
+                _instance = this as T;
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
 
             OnAwaked();
         }
@@ -64,18 +71,6 @@ namespace GameFramework
         public static bool HasInstance()
         {
             return _instance != null;
-        }
-
-        private void RemoveDuplicates()
-        {
-            if (_instance == null)
-            {
-                _instance = this as T;
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
         }
     }
 }
