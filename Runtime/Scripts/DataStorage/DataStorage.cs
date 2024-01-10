@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,39 +7,39 @@ namespace GameFramework
 {
     public class DataStorage : MonoBehaviour
     {
-        private Dictionary<string, object> dataMap;
+        private Dictionary<string, object> keyDataMap;
+        private Dictionary<Type, object> typeDataMap;
 
         private void Awake()
         {
-            dataMap = new Dictionary<string, object>();
+            keyDataMap = new Dictionary<string, object>();
+            typeDataMap = new Dictionary<Type, object>();
         }
 
         private void OnDestroy()
         {
-            dataMap.Clear();
-            dataMap = null;
+            keyDataMap.Clear();
+            keyDataMap = null;
+
+            typeDataMap.Clear();
+            typeDataMap = null;
         }
 
         public void Set<T>(T value)
         {
-            Set("", value);
+            typeDataMap[typeof(T)] = value;
         }
 
         public void Set<T>(string key, T value)
         {
-            dataMap[key] = value;
+            keyDataMap[key] = value;
         }
 
         public bool Get<T>(out T value, bool delete = false)
         {
-            return Get("", out value, delete);
-        }
-
-        public bool Get<T>(string key, out T value, bool delete = false)
-        {
             try
             {
-                if (dataMap.TryGetValue(key, out var data))
+                if (typeDataMap.TryGetValue(typeof(T), out var data))
                 {
                     value = (T)data;
                     return true;
@@ -53,9 +54,37 @@ namespace GameFramework
             {
                 if (delete)
                 {
-                    if (dataMap.ContainsKey(key))
+                    if (typeDataMap.ContainsKey(typeof(T)))
                     {
-                        dataMap.Remove(key);
+                        typeDataMap.Remove(typeof(T));
+                    }
+                }
+            }
+
+        }
+
+        public bool Get<T>(string key, out T value, bool delete = false)
+        {
+            try
+            {
+                if (keyDataMap.TryGetValue(key, out var data))
+                {
+                    value = (T)data;
+                    return true;
+                }
+                else
+                {
+                    value = default(T);
+                    return false;
+                }
+            }
+            finally
+            {
+                if (delete)
+                {
+                    if (keyDataMap.ContainsKey(key))
+                    {
+                        keyDataMap.Remove(key);
                     }
                 }
             }
