@@ -23,11 +23,15 @@ namespace GameFramework
             }
         }
 
+        public bool initialized { get; protected set; }
+
         public void Initialize(long tick = 0, double interval = 1 / 60.0, double elapsedTime = 0)
         {
             this.tick = tick;
             this.interval = interval;
             this.elapsedTime = elapsedTime;
+
+            initialized = true;
         }
 
         public void Deinitialize()
@@ -38,6 +42,8 @@ namespace GameFramework
             tick = 0;
             interval = 1 / 60.0;
             elapsedTime = 0;
+
+            initialized = false;
         }
 
         public void Run()

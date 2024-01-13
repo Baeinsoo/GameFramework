@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace GameFramework
 {
-    public interface ITickUpdater
+    public interface ITickUpdater : IInitializable<long, double, double>, IDeinitializable
     {
         event Action<long> onTick;
 
@@ -13,9 +13,6 @@ namespace GameFramework
         double time { get; }
         double elapsedTime { get; }
         long processibleTick { get; }
-
-        void Initialize(long tick, double interval, double elapsedTime);
-        void Deinitialize();
 
         void Run(long tick, double interval, double elapsedTime);
     }
