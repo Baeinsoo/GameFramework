@@ -5,12 +5,9 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IGame
+    public interface IGame : IInitializable, IDeinitializable
     {
         ITickUpdater tickUpdater { get; }
-
-        void Initialize();
-        void Deinitialize();
 
         void Run(long tick, double interval, double elapsedTime);
         void Stop();
