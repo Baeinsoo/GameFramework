@@ -8,6 +8,8 @@ namespace GameFramework
 {
     public class MonoSingleton<T> : MonoBehaviour where T : Component
     {
+        private static bool applicationQuitting;
+
         private static T _instance;
         public static T instance
         {
@@ -43,6 +45,11 @@ namespace GameFramework
             OnAwaked();
         }
 
+        private void OnApplicationQuit()
+        {
+            applicationQuitting = true;
+        }
+
         private void OnDestroy()
         {
             if (_instance == this)
@@ -55,6 +62,11 @@ namespace GameFramework
 
         private static void Instantiate()
         {
+            if (applicationQuitting == true)
+            {
+                throw new UnityException("Can not instantiate. Application is quitting.");
+            }
+
             var factoryMethod = typeof(T).GetMethod("CreateInstance", BindingFlags.Public | BindingFlags.Static);
             if (factoryMethod != null)
             {
