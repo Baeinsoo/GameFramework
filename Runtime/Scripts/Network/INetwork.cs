@@ -7,7 +7,7 @@ namespace GameFramework
 {
     public interface INetwork
     {
-        event Action<IMessage> onMessage;
+        event Action<int, IMessage> onMessage;
 
         void Send(IMessage message, int targetId, bool reliable = true, bool instant = false);
         void SendToAll(IMessage message, bool reliable = true, bool instant = false);
