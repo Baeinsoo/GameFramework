@@ -19,6 +19,7 @@ namespace GameFramework
                 {
                     SurrogateSelector surrogateSelector = new SurrogateSelector();
                     surrogateSelector.AddSurrogate(typeof(Vector3), new StreamingContext(StreamingContextStates.All), new Vector3SerializationSurrogate());
+                    surrogateSelector.AddSurrogate(typeof(Vector2), new StreamingContext(StreamingContextStates.All), new Vector2SerializationSurrogate());
 
                     _formatter = new BinaryFormatter();
                     _formatter.SurrogateSelector = surrogateSelector;
