@@ -14,6 +14,7 @@ namespace GameFramework
         string entityId { get; }
         Vector3 position { get; }
         Vector3 rotation { get; }
+        Vector3 velocity { get; }
         ICollection<TComponent> components { get; }
 
         T AttachComponent<T>(T component) where T : TComponent;
