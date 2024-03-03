@@ -5,33 +5,33 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public class SceneDataStorage : MonoSingleton<SceneDataStorage>
+    public class SceneDataStorage : MonoSingleton<SceneDataStorage>, IDataStorage
     {
-        private DataStorage dataStorage;
+        private IDataStorage dataStorageImpl;
 
         protected override void OnAwaked()
         {
-            dataStorage = gameObject.AddComponent<DataStorage>();
+            dataStorageImpl = gameObject.AddComponent<DataStorage>();
         }
 
-        public static void Set<T>(T value)
+        public void Set<T>(T value)
         {
-            instance.dataStorage.Set(value);
+            dataStorageImpl.Set(value);
         }
 
-        public static void Set<T>(string key, T value)
+        public void Set<T>(string key, T value)
         {
-            instance.dataStorage.Set(key, value);
+            dataStorageImpl.Set(key, value);
         }
 
-        public static bool Get<T>(out T value, bool delete = false)
+        public bool Get<T>(out T value, bool delete = false)
         {
-            return instance.dataStorage.Get(out value, delete);
+            return dataStorageImpl.Get(out value, delete);
         }
 
-        public static bool Get<T>(string key, out T value, bool delete = false)
+        public bool Get<T>(string key, out T value, bool delete = false)
         {
-            return instance.dataStorage.Get(key, out value, delete);
+            return dataStorageImpl.Get(key, out value, delete);
         }
     }
 }

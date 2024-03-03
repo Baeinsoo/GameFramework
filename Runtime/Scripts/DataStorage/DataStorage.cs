@@ -5,41 +5,41 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public class DataStorage : MonoBehaviour
+    public class DataStorage : MonoBehaviour, IDataStorage
     {
-        private Dictionary<string, object> keyDataMap;
-        private Dictionary<Type, object> typeDataMap;
+        private Dictionary<string, object> keyToDataMap;
+        private Dictionary<Type, object> typeToDataMap;
 
         private void Awake()
         {
-            keyDataMap = new Dictionary<string, object>();
-            typeDataMap = new Dictionary<Type, object>();
+            keyToDataMap = new Dictionary<string, object>();
+            typeToDataMap = new Dictionary<Type, object>();
         }
 
         private void OnDestroy()
         {
-            keyDataMap.Clear();
-            keyDataMap = null;
+            keyToDataMap.Clear();
+            keyToDataMap = null;
 
-            typeDataMap.Clear();
-            typeDataMap = null;
+            typeToDataMap.Clear();
+            typeToDataMap = null;
         }
 
         public void Set<T>(T value)
         {
-            typeDataMap[typeof(T)] = value;
+            typeToDataMap[typeof(T)] = value;
         }
 
         public void Set<T>(string key, T value)
         {
-            keyDataMap[key] = value;
+            keyToDataMap[key] = value;
         }
 
         public bool Get<T>(out T value, bool delete = false)
         {
             try
             {
-                if (typeDataMap.TryGetValue(typeof(T), out var data))
+                if (typeToDataMap.TryGetValue(typeof(T), out var data))
                 {
                     value = (T)data;
                     return true;
@@ -54,9 +54,9 @@ namespace GameFramework
             {
                 if (delete)
                 {
-                    if (typeDataMap.ContainsKey(typeof(T)))
+                    if (typeToDataMap.ContainsKey(typeof(T)))
                     {
-                        typeDataMap.Remove(typeof(T));
+                        typeToDataMap.Remove(typeof(T));
                     }
                 }
             }
@@ -67,7 +67,7 @@ namespace GameFramework
         {
             try
             {
-                if (keyDataMap.TryGetValue(key, out var data))
+                if (keyToDataMap.TryGetValue(key, out var data))
                 {
                     value = (T)data;
                     return true;
@@ -82,9 +82,9 @@ namespace GameFramework
             {
                 if (delete)
                 {
-                    if (keyDataMap.ContainsKey(key))
+                    if (keyToDataMap.ContainsKey(key))
                     {
-                        keyDataMap.Remove(key);
+                        keyToDataMap.Remove(key);
                     }
                 }
             }
