@@ -10,7 +10,6 @@ namespace GameFramework
 
         long tick { get; }
         double interval { get; }
-        double time { get; }
         double elapsedTime { get; }
         long processibleTick { get; }
 
