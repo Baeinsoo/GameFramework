@@ -27,18 +27,12 @@ namespace GameFramework
         public virtual void Deinitialize()
         {
             tickUpdater.onTick -= OnTick;
-            tickUpdater.Deinitialize();
             tickUpdater = null;
 
             inputProcessor = null;
             gameProcessor = null;
 
             initialized = false;
-        }
-
-        public void Run()
-        {
-            Run(0, 1 / 60.0, 0);
         }
 
         public void Run(long tick, double interval, double elapsedTime)
@@ -54,6 +48,8 @@ namespace GameFramework
             {
                 Game.current = null;
             }
+
+            tickUpdater.Stop();
         }
 
         public abstract void OnTick(long tick);
