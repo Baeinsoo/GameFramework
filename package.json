@@ -1,9 +1,8 @@
 {
-    "name": "com.baesoft.gf",
-    "displayName": "GameFramework",
-    "author": { "name": "BAESoft, Inc.", "url": "https://naver.cm/" },
+    "name": "com.baesoft.gameframework",
     "version": "0.0.1",
-    "unity": "2022.3",
     "description": "GameFramework for Unity.",
-    "dependencies": {}
+    "displayName": "GameFramework",
+    "unity": "2022.3",
+    "author": { "name": "insoo.bae" }
 }
