@@ -1,5 +1,5 @@
 {
-    "name": "baesoft.GameFramework.Runtime",
+    "name": "baegames.GameFramework.Runtime",
     "rootNamespace": "",
     "references": [],
     "includePlatforms": [],

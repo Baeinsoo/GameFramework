@@ -1,5 +1,5 @@
 {
-    "name": "baesoft.GameFramework.Editor",
+    "name": "baegames.GameFramework.Editor",
     "rootNamespace": "",
     "references": [
         "GUID:1fadd0ce736be5a44a44c22ee588cbf0"
