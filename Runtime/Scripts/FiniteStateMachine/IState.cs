@@ -9,8 +9,8 @@ namespace GameFramework
     {
         IFiniteStateMachine FSM { get; }
 
-        void OnEnter();
-        void OnExit();
+        void Enter();
+        void Exit();
 
         IState GetNext<I>(I input) where I : Enum;
     }

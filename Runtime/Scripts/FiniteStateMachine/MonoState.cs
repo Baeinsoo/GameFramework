@@ -9,9 +9,25 @@ namespace GameFramework
     {
         public IFiniteStateMachine FSM => gameObject.GetOrAddComponent<MonoStateMachine>();
 
-        public virtual void OnEnter() { }
-        public virtual void OnExit() { }
+        public void Enter()
+        {
+            OnEnter();
+            StartCoroutine("OnExecute");
+        }
+
+        public void Exit()
+        {
+            StopCoroutine("OnExecute");
+            OnExit();
+        }
 
         public abstract IState GetNext<I>(I input) where I : Enum;
+
+        protected virtual void OnEnter() { }
+        protected virtual void OnExit() { }
+        protected virtual IEnumerator OnExecute()
+        {
+            yield break;
+        }
     }
 }

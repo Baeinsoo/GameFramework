@@ -13,12 +13,12 @@ namespace GameFramework
         public void StartStateMachine()
         {
             currentState = initState;
-            currentState.OnEnter();
+            currentState.Enter();
         }
 
         public void StopStateMachine()
         {
-            currentState?.OnExit();
+            currentState?.Exit();
             currentState = null;
         }
 
@@ -32,12 +32,12 @@ namespace GameFramework
                 return;
             }
 
-            currentState.OnExit();
+            currentState.Exit();
 
             currentState = nextState;
             OnStateChange();
 
-            currentState.OnEnter();
+            currentState.Enter();
         }
 
         public virtual void OnStateChange() { }
