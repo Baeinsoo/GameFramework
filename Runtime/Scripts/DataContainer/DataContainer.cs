@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public class DataStorage : MonoBehaviour, IDataStorage
+    public class DataContainer : MonoBehaviour, IDataContainer
     {
         private Dictionary<string, object> keyToDataMap;
         private Dictionary<Type, object> typeToDataMap;

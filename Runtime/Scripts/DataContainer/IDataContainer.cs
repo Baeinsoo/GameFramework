@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IDataStorage
+    public interface IDataContainer
     {
         void Set<T>(T value);
         void Set<T>(string key, T value);
