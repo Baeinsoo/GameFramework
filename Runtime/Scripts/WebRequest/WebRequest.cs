@@ -22,6 +22,8 @@ namespace GameFramework
         public UnityWebRequestAsyncOperation asyncOperation { get; private set; }
         public event Action completed;
         public bool isSuccess => unityWebRequest.result == UnityWebRequest.Result.Success;
+        public string error => unityWebRequest.error;
+        public long responseCode => unityWebRequest.responseCode;
 
         public UnityWebRequest unityWebRequest { get; private set; }
         public IWebRequestParam<T> webRequestParam { get; private set; }
@@ -40,7 +42,7 @@ namespace GameFramework
             this.asyncOperation = this.unityWebRequest.SendWebRequest();
             this.asyncOperation.completed += _ =>
             {
-                response = (webRequestParam.deserialize ?? JsonConvert.DeserializeObject<T>).Invoke(unityWebRequest.downloadHandler.text);
+                response = (webRequestParam.deserialize ?? WebRequestJson.DeserializeObject<T>).Invoke(unityWebRequest.downloadHandler.text);
 
                 completed?.Invoke();
             };
@@ -67,10 +69,7 @@ namespace GameFramework
 
             if (webRequestParam.requestBody != null)
             {
-                var bodyJson = JsonConvert.SerializeObject(webRequestParam.requestBody, Formatting.Indented, new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
+                var bodyJson = WebRequestJson.SerializeObject(webRequestParam.requestBody);
                 byte[] data = new UTF8Encoding().GetBytes(bodyJson);
                 unityWebRequest.uploadHandler = new UploadHandlerRaw(data);
                 unityWebRequest.SetRequestHeader("Content-Type", "application/json");
