@@ -20,8 +20,14 @@ namespace GameFramework
             }
         }
 
-        private static void Instantiate()
+        public static void Instantiate()
         {
+            if (_instance != null)
+            {
+                Debug.LogWarning($"There is an instance already. Instantiate is ignored.");
+                return;
+            }
+
             _instance = new T();
         }
 

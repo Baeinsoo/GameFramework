@@ -18,6 +18,7 @@ namespace GameFramework
                 if (_instance == null)
                 {
                     _instance = FindObjectOfType(typeof(T)) as T;
+
                     if (_instance == null)
                     {
                         Instantiate();
@@ -60,8 +61,14 @@ namespace GameFramework
             OnDestroyed();
         }
 
-        private static void Instantiate()
+        public static void Instantiate()
         {
+            if (_instance != null)
+            {
+                Debug.LogWarning($"There is an instance already. Instantiate is ignored.");
+                return;
+            }
+
             if (applicationQuitting == true)
             {
                 throw new UnityException("Can not instantiate. Application is quitting.");
