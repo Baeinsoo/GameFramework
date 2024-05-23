@@ -29,10 +29,7 @@ namespace GameFramework
             }
         }
 
-        protected virtual void OnAwaked() { }
-        protected virtual void OnDestroyed() { }
-
-        private void Awake()
+        protected virtual void Awake()
         {
             if (_instance == null)
             {
@@ -42,8 +39,6 @@ namespace GameFramework
             {
                 Destroy(gameObject);
             }
-
-            OnAwaked();
         }
 
         private void OnApplicationQuit()
@@ -51,14 +46,12 @@ namespace GameFramework
             applicationQuitting = true;
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             if (_instance == this)
             {
                 _instance = null;
             }
-
-            OnDestroyed();
         }
 
         public static void Instantiate()
@@ -84,6 +77,12 @@ namespace GameFramework
                 var go = new GameObject($"{typeof(T).Name} Singleton");
 
                 _instance = go.AddComponent<T>();
+            }
+
+            var attribute = _instance.GetType().GetCustomAttribute(typeof(DontDestroyMonoSingletonAttribute));
+            if (attribute != null)
+            {
+                DontDestroyOnLoad(_instance);
             }
         }
 
