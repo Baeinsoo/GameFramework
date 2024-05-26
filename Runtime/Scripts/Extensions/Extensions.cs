@@ -11,5 +11,10 @@ namespace GameFramework
         {
             return Enum.TryParse(self.ToString(), out result);
         }
+
+        public static T Parse<T>(this string self)
+        {
+            return (T)Enum.Parse(typeof(T), self);
+        }
     }
 }
