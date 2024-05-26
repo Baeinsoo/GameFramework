@@ -7,6 +7,8 @@ namespace GameFramework
 {
     public interface IPopup
     {
+        bool autoClose { get; }
+
         event Action onClose;
 
         void Show();

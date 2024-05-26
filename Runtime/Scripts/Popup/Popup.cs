@@ -7,6 +7,9 @@ namespace GameFramework
 {
     public class Popup : MonoBehaviour, IPopup
     {
+        [field: SerializeField]
+        public bool autoClose { get; private set; } = true;
+
         public event Action onClose;
 
         public virtual void Show()

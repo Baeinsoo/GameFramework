@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GameFramework
 {
@@ -18,6 +19,8 @@ namespace GameFramework
             base.Awake();
 
             popups = new HashSet<IPopup>();
+
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
         }
 
         protected override void OnDestroy()
@@ -27,6 +30,13 @@ namespace GameFramework
             CloseAll();
 
             popups = null;
+
+            SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+        }
+
+        private void OnActiveSceneChanged(Scene prev, Scene curr)
+        {
+            AutoCloseAll();
         }
 
         public T GetPopup<T>(Transform parent = null) where T : IPopup
@@ -43,7 +53,7 @@ namespace GameFramework
             var popup = clone.GetComponent<T>();
             popup.onClose += () =>
             {
-                OnPopupClose(popup);
+                ClosePopup(popup);
             };
 
             popups.Add(popup);
@@ -65,18 +75,26 @@ namespace GameFramework
 
         public void CloseAll()
         {
-            foreach (var popup in popups)
+            var iterator = new HashSet<IPopup>(popups);
+            foreach (var popup in iterator)
             {
-                if (popup is Popup p && p != null)
-                {
-                    Destroy(p.gameObject);
-                }
+                ClosePopup(popup);
             }
-
-            popups.Clear();
         }
 
-        private void OnPopupClose(IPopup popup)
+        private void AutoCloseAll()
+        {
+            var iterator = new HashSet<IPopup>(popups);
+            foreach (var popup in iterator)
+            {
+                if (popup.autoClose)
+                {
+                    ClosePopup(popup);
+                }
+            }
+        }
+
+        private void ClosePopup(IPopup popup)
         {
             if (popup is Popup p && p != null)
             {
