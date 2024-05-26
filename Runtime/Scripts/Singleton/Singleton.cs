@@ -30,10 +30,5 @@ namespace GameFramework
 
             _instance = new T();
         }
-
-        public static bool HasInstance()
-        {
-            return _instance != null;
-        }
     }
 }

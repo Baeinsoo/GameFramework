@@ -17,12 +17,7 @@ namespace GameFramework
             {
                 if (_instance == null)
                 {
-                    _instance = FindObjectOfType(typeof(T)) as T;
-
-                    if (_instance == null)
-                    {
-                        Instantiate();
-                    }
+                    Instantiate();
                 }
 
                 return _instance;
@@ -34,6 +29,8 @@ namespace GameFramework
             if (_instance == null)
             {
                 _instance = this as T;
+
+                TryDontDestroyMonoSingleton(_instance);
             }
             else
             {
@@ -79,16 +76,16 @@ namespace GameFramework
                 _instance = go.AddComponent<T>();
             }
 
-            var attribute = _instance.GetType().GetCustomAttribute(typeof(DontDestroyMonoSingletonAttribute));
-            if (attribute != null)
-            {
-                DontDestroyOnLoad(_instance);
-            }
+            TryDontDestroyMonoSingleton(_instance);
         }
 
-        public static bool HasInstance()
+        private static void TryDontDestroyMonoSingleton(T target)
         {
-            return _instance != null;
+            var attribute = target.GetType().GetCustomAttribute(typeof(DontDestroyMonoSingletonAttribute));
+            if (attribute != null)
+            {
+                DontDestroyOnLoad(target);
+            }
         }
     }
 }
