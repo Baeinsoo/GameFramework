@@ -10,7 +10,7 @@ namespace GameFramework
         IState initState { get; }
         IState currentState { get; }
 
-        void MoveNext<I>(I input) where I : Enum;
+        void ProcessInput<I>(I input) where I : Enum;
         void OnStateChange();
     }
 }

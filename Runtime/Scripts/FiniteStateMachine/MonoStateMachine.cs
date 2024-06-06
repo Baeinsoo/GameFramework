@@ -22,7 +22,7 @@ namespace GameFramework
             currentState = null;
         }
 
-        public void MoveNext<I>(I input) where I : Enum
+        public void ProcessInput<I>(I input) where I : Enum
         {
             var nextState = currentState.GetNext(input);
 

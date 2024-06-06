@@ -42,7 +42,14 @@ namespace GameFramework
             this.asyncOperation = this.unityWebRequest.SendWebRequest();
             this.asyncOperation.completed += _ =>
             {
-                response = (webRequestParam.deserialize ?? WebRequestJson.DeserializeObject<T>).Invoke(unityWebRequest.downloadHandler.text);
+                if (isSuccess)
+                {
+                    response = (webRequestParam.deserialize ?? WebRequestJson.DeserializeObject<T>).Invoke(unityWebRequest.downloadHandler.text);
+                }
+                else
+                {
+                    Debug.LogWarning($"{webRequestParam.uri} is not success. unityWebRequest.result: {unityWebRequest.result}, error: {error}");
+                }
 
                 completed?.Invoke();
             };
