@@ -24,7 +24,7 @@ namespace GameFramework
                         Debug.LogWarning($"Multiple instances of the ScriptableObjectSingleton found in the Resources.");
                     }
 
-                    _instance = candidates[0];
+                    _instance = Instantiate(candidates[0]);
                 }
 
                 return _instance;
