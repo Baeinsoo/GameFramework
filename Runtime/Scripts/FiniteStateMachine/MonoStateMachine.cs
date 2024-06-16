@@ -7,6 +7,8 @@ namespace GameFramework
 {
     public abstract class MonoStateMachine : MonoBehaviour, IFiniteStateMachine
     {
+        public event Action<IState, IState> onStateChange;
+
         public abstract IState initState { get; }
         public IState currentState { get; private set; }
 
@@ -34,12 +36,10 @@ namespace GameFramework
 
             currentState.Exit();
 
+            onStateChange?.Invoke(currentState, nextState);
             currentState = nextState;
-            OnStateChange();
 
             currentState.Enter();
         }
-
-        public virtual void OnStateChange() { }
     }
 }
