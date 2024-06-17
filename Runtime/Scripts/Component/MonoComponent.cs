@@ -1,16 +1,19 @@
-using GameFramework;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 namespace GameFramework
 {
-    public class MonoComponent<TEntity, TComponent> : MonoBehaviour, IComponent<TEntity, TComponent>
-        where TEntity : MonoEntity<TEntity, TComponent>
-        where TComponent : MonoComponent<TEntity, TComponent>
+    public class MonoComponent<TEntity> : MonoBehaviour, IComponent<TEntity> where TEntity : IEntity
     {
         public virtual TEntity entity { get; protected set; }
+
+        IEntity IComponent.entity => entity as IEntity;
+
+        void IComponent.OnAttach(IEntity entity)
+        {
+            this.entity = (TEntity)entity;
+        }
 
         public virtual void OnAttach(TEntity entity)
         {
@@ -19,7 +22,7 @@ namespace GameFramework
 
         public virtual void OnDetach()
         {
-            this.entity = null;
+            this.entity = default;
         }
     }
 }

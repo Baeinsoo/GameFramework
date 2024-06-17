@@ -1,23 +1,26 @@
-using GameFramework;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Security.Principal;
 using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IEntity<TEntity, TComponent>
-        where TEntity : IEntity<TEntity, TComponent>
-        where TComponent : IComponent<TEntity, TComponent>
+    public interface IEntity
     {
         string entityId { get; }
         Vector3 position { get; }
         Vector3 rotation { get; }
         Vector3 velocity { get; }
-        ICollection<TComponent> components { get; }
+        ICollection<IComponent> components { get; }
 
-        T AttachComponent<T>(T component) where T : TComponent;
+        IComponent AttachComponent(IComponent component);
+        void DetachComponent(IComponent component);
+    }
+
+    public interface IEntity<TComponent> : IEntity where TComponent : IComponent
+    {
+        new ICollection<TComponent> components { get; }
+
+        TComponent AttachComponent(TComponent component);
         void DetachComponent(TComponent component);
     }
 }
