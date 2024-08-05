@@ -5,18 +5,25 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IInitializableBase
+    public interface IInitializable
     {
         bool initialized { get; }
-    }
 
-    public interface IInitializable : IInitializableBase
-    {
         void Initialize();
     }
 
-    public interface IInitializable<T1, T2, T3> : IInitializableBase
+    public interface IInitializable<T1> : IInitializable
     {
-        void Initialize(T1 value1, T2 value2, T3 value3);
+        void Initialize(T1 param);
+    }
+
+    public interface IInitializable<T1, T2> : IInitializable
+    {
+        void Initialize(T1 param1, T2 param2);
+    }
+
+    public interface IInitializable<T1, T2, T3> : IInitializable
+    {
+        void Initialize(T1 param1, T2 param2, T3 param3);
     }
 }
