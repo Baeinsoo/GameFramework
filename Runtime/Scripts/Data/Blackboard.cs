@@ -13,17 +13,17 @@ namespace GameFramework
             dataMap = new Dictionary<string, object>();
         }
 
-        public static void Set<T>(T data)
+        public static void Write<T>(T data)
         {
             dataMap[typeof(T).Name] = data;
         }
 
-        public static void Set<T>(string key, T data)
+        public static void Write<T>(string key, T data)
         {
             dataMap[key] = data;
         }
 
-        public static T Get<T>(string key = null, bool delete = false)
+        public static T Read<T>(string key = null, bool erase = false)
         {
             try
             {
@@ -31,14 +31,14 @@ namespace GameFramework
             }
             finally
             {
-                if (delete)
+                if (erase)
                 {
-                    Delete<T>(key);
+                    Erase<T>(key);
                 }
             }
         }
 
-        public static void Delete<T>(string key = null)
+        public static void Erase<T>(string key = null)
         {
             dataMap.Remove(key ?? typeof(T).Name);
         }
