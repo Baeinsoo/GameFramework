@@ -1,6 +1,6 @@
 {
     "name": "com.baegames.gameframework",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "GameFramework for Unity.",
     "displayName": "GameFramework",
     "unity": "2022.3",
