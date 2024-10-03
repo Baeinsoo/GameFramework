@@ -17,7 +17,7 @@ namespace GameFramework
                     var candidates = Resources.LoadAll<T>("");
                     if (candidates == null || candidates.Length < 1)
                     {
-                        throw new Exception($"Could not find any ScriptableObjectSingleton instance in the Resources.");
+                        throw new Exception($"Could not find any {typeof(T).Name} instance in the Resources.");
                     }
                     else if (candidates.Length > 1)
                     {
