@@ -1,15 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IInitializable
+    public interface IInitializableBase
     {
         bool initialized { get; }
+    }
 
+    public interface IInitializable : IInitializableBase
+    {
         void Initialize();
+    }
+
+    public interface IInitializableAsync : IInitializableBase
+    {
+        Task InitializeAsync();
     }
 
     public interface IInitializable<T1> : IInitializable
