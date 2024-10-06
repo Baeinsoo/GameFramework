@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface INetwork<TMessage>
+    public interface INetwork<TMessage> where TMessage : IMessage
     {
         event Action<int, TMessage> onMessage;
 
