@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface INetwork<TMessage> where TMessage : IMessage
+    public interface INetwork
     {
-        event Action<int, TMessage> onMessage;
+        event Action<int, IMessage> onMessage;
 
-        void Send(TMessage message, int targetId, bool reliable = true, bool instant = false);
-        void SendToAll(TMessage message, bool reliable = true, bool instant = false);
-        void SendToNear(TMessage message, Vector3 center, float radius, bool reliable = true, bool instant = false);
+        void Send(IMessage message, int targetId, bool reliable = true, bool instant = false);
+        void SendToAll(IMessage message, bool reliable = true, bool instant = false);
+        void SendToNear(IMessage message, Vector3 center, float radius, bool reliable = true, bool instant = false);
     }
 }

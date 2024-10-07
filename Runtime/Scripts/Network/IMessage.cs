@@ -4,5 +4,11 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IMessage { }
+    public interface IMessage
+    {
+        ushort messageId { get; }
+
+        byte[] Serialize();
+        void Deserialize(byte[] data);
+    }
 }
