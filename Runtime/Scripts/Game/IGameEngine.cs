@@ -1,12 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IGame : IInitializableAsync, IDeinitializable
+    public interface IGameEngine : IInitializableAsync, IDeinitializableAsync
     {
-        IGameEngine gameEngine { get; }
+        IGameSystem[] gameSystems { get; }
+        ITickUpdater tickUpdater { get; }
 
         void Run(long tick, double interval, double elapsedTime);
         void Stop();

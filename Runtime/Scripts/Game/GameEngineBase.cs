@@ -1,57 +1,64 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace GameFramework
 {
-    public abstract class GameBase : MonoBehaviour, IGame
+    public class GameEngineBase : MonoBehaviour, IGameEngine
     {
         public ITickUpdater tickUpdater { get; private set; }
-        public IInputProcessor inputProcessor { get; private set; }
-        public IGameProcessor gameProcessor { get; private set; }
+        public IGameSystem[] gameSystems { get; private set; }
 
         public bool initialized { get; protected set; }
 
-        public virtual void Initialize()
+        public virtual async Task InitializeAsync()
         {
             tickUpdater = GetComponent<ITickUpdater>() ?? throw new ArgumentNullException(nameof(ITickUpdater));
             tickUpdater.onTick += OnTick;
-
-            inputProcessor = GetComponent<IInputProcessor>() ?? throw new ArgumentNullException(nameof(IInputProcessor));
-            gameProcessor = GetComponent<IGameProcessor>() ?? throw new ArgumentNullException(nameof(IGameProcessor));
+            gameSystems = GetComponents<IGameSystem>();
 
             initialized = true;
         }
 
-        public virtual void Deinitialize()
+        public virtual async Task DeinitializeAsync()
         {
             tickUpdater.onTick -= OnTick;
             tickUpdater = null;
-
-            inputProcessor = null;
-            gameProcessor = null;
+            gameSystems = null;
 
             initialized = false;
         }
 
+        private void OnTick(long tick)
+        {
+            UpdateGame();
+        }
+
         public void Run(long tick, double interval, double elapsedTime)
         {
-            Game.current = this;
+            GameEngine.current = this;
 
             tickUpdater.Run(tick, interval, elapsedTime);
         }
 
         public void Stop()
         {
-            if (Game.current == this)
+            if (GameEngine.current == this)
             {
-                Game.current = null;
+                GameEngine.current = null;
             }
 
             tickUpdater.Stop();
         }
 
-        public abstract void OnTick(long tick);
+        public void UpdateGame()
+        {
+            foreach (var gameSystem in gameSystems.OrEmpty())
+            {
+                gameSystem.Update();
+            }
+        }
     }
 }
