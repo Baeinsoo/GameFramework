@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IGame : IInitializableAsync, IDeinitializable
+    public interface IGame : IInitializableAsync, IDeinitializableAsync
     {
         IGameEngine gameEngine { get; }
 
