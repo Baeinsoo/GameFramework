@@ -11,6 +11,5 @@ namespace GameFramework
         ITickUpdater tickUpdater { get; }
 
         void Run(long tick, double interval, double elapsedTime);
-        void Stop();
     }
 }

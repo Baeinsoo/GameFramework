@@ -9,6 +9,5 @@ namespace GameFramework
         IGame game { get; }
 
         void StartGame();
-        void StopGame();
     }
 }
