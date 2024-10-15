@@ -15,7 +15,7 @@ namespace GameFramework
 
         public static void Write<T>(T data)
         {
-            dataMap[typeof(T).Name] = data;
+            Write(typeof(T).Name, data);
         }
 
         public static void Write<T>(string key, T data)
@@ -41,6 +41,16 @@ namespace GameFramework
         public static void Erase<T>(string key = null)
         {
             dataMap.Remove(key ?? typeof(T).Name);
+        }
+
+        public static bool Contain<T>()
+        {
+            return Contain(typeof(T).Name);
+        }
+
+        public static bool Contain(string key)
+        {
+            return dataMap.ContainsKey(key);
         }
     }
 }
