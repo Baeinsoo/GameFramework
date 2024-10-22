@@ -11,11 +11,4 @@ namespace GameFramework
         void OnAttach(IEntity entity);
         void OnDetach();
     }
-
-    public interface IComponent<TEntity> : IComponent where TEntity : IEntity
-    {
-        new TEntity entity { get; }
-
-        void OnAttach(TEntity entity);
-    }
 }

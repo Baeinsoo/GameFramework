@@ -4,36 +4,27 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public class MonoEntity<TComponent> : MonoBehaviour, IEntity<TComponent> where TComponent : IComponent
+    public class MonoEntity : MonoBehaviour, IEntity
     {
-        public virtual string entityId { get; protected set; }
+        public string entityId { get; protected set; }
         public virtual Vector3 position { get; set; }
         public virtual Vector3 rotation { get; set; }
         public virtual Vector3 velocity { get; set; }
-        public virtual ICollection<TComponent> components { get; protected set; }
+        public virtual ICollection<IComponent> components { get; } = new List<IComponent>();
 
-        ICollection<IComponent> IEntity.components => components as ICollection<IComponent>;
-
-        IComponent IEntity.AttachComponent(IComponent component)
+        public virtual IComponent AttachComponent(IComponent component)
         {
-            return AttachComponent((TComponent)component);
-        }
+            components.Add(component);
 
-        void IEntity.DetachComponent(IComponent component)
-        {
-            DetachComponent((TComponent)component);
-        }
-
-        public virtual TComponent AttachComponent(TComponent component)
-        {
             component.OnAttach(this);
-
             return component;
         }
 
-        public virtual void DetachComponent(TComponent component)
+        public virtual void DetachComponent(IComponent component)
         {
             component.OnDetach();
+
+            components.Remove(component);
         }
     }
 }

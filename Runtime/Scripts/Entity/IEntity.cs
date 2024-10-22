@@ -15,12 +15,4 @@ namespace GameFramework
         IComponent AttachComponent(IComponent component);
         void DetachComponent(IComponent component);
     }
-
-    public interface IEntity<TComponent> : IEntity where TComponent : IComponent
-    {
-        new ICollection<TComponent> components { get; }
-
-        TComponent AttachComponent(TComponent component);
-        void DetachComponent(TComponent component);
-    }
 }

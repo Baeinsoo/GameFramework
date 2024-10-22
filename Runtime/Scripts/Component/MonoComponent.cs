@@ -4,25 +4,18 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public class MonoComponent<TEntity> : MonoBehaviour, IComponent<TEntity> where TEntity : IEntity
+    public class MonoComponent : MonoBehaviour, IComponent
     {
-        public virtual TEntity entity { get; protected set; }
+        public IEntity entity { get; protected set; }
 
-        IEntity IComponent.entity => entity as IEntity;
-
-        void IComponent.OnAttach(IEntity entity)
-        {
-            this.entity = (TEntity)entity;
-        }
-
-        public virtual void OnAttach(TEntity entity)
+        public virtual void OnAttach(IEntity entity)
         {
             this.entity = entity;
         }
 
         public virtual void OnDetach()
         {
-            this.entity = default;
+            this.entity = null;
         }
     }
 }
