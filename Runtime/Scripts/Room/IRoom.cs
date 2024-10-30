@@ -9,6 +9,6 @@ namespace GameFramework
     {
         IGame game { get; }
 
-        Task StartGame();
+        Task StartGameAsync();
     }
 }
