@@ -7,9 +7,10 @@ namespace GameFramework
 {
     public interface IGame : IInitializableAsync, IDeinitializableAsync
     {
-        IGameEngine gameEngine { get; }
+        event Action<GameState> onGameStateChanged;
 
-        event Action onGameEnd;
+        GameState gameState { get; }
+        IGameEngine gameEngine { get; }
 
         void Run(long tick, double interval, double elapsedTime);
     }
