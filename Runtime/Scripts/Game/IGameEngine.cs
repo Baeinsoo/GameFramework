@@ -7,9 +7,10 @@ namespace GameFramework
 {
     public interface IGameEngine : IInitializableAsync, IDeinitializableAsync
     {
-        IGameSystem[] gameSystems { get; }
+        IEntityManager entityManager { get; }
         ITickUpdater tickUpdater { get; }
 
         void Run(long tick, double interval, double elapsedTime);
+        void UpdateEngine();
     }
 }

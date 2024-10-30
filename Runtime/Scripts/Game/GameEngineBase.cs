@@ -6,10 +6,10 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public class GameEngineBase : MonoBehaviour, IGameEngine
+    public abstract class GameEngineBase : MonoBehaviour, IGameEngine
     {
+        public IEntityManager entityManager { get; private set; }
         public ITickUpdater tickUpdater { get; private set; }
-        public IGameSystem[] gameSystems { get; private set; }
 
         public bool initialized { get; protected set; }
 
@@ -17,7 +17,7 @@ namespace GameFramework
         {
             tickUpdater = GetComponent<ITickUpdater>() ?? throw new ArgumentNullException(nameof(ITickUpdater));
             tickUpdater.onTick += OnTick;
-            gameSystems = GetComponents<IGameSystem>();
+            entityManager = GetComponent<IEntityManager>() ?? throw new ArgumentNullException(nameof(IEntityManager));
 
             initialized = true;
         }
@@ -26,14 +26,9 @@ namespace GameFramework
         {
             tickUpdater.onTick -= OnTick;
             tickUpdater = null;
-            gameSystems = null;
+            entityManager = null;
 
             initialized = false;
-        }
-
-        private void OnTick(long tick)
-        {
-            UpdateGame();
         }
 
         public void Run(long tick, double interval, double elapsedTime)
@@ -53,12 +48,11 @@ namespace GameFramework
             tickUpdater.Stop();
         }
 
-        public void UpdateGame()
+        private void OnTick(long tick)
         {
-            foreach (var gameSystem in gameSystems.OrEmpty())
-            {
-                gameSystem.Update();
-            }
+            UpdateEngine();
         }
+
+        public abstract void UpdateEngine();
     }
 }
