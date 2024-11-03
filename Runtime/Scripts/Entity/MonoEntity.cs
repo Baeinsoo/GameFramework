@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public class MonoEntity : MonoBehaviour, IEntity
+    public abstract class MonoEntity : MonoBehaviour, IEntity
     {
         public string entityId { get; protected set; }
         public virtual Vector3 position { get; set; }
@@ -26,5 +26,7 @@ namespace GameFramework
 
             components.Remove(component);
         }
+
+        public abstract void UpdateEntity();
     }
 }
