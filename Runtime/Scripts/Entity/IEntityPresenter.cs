@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IEntityPresenter
+    public interface IEntityPresenter<T> where T : IEntity
     {
-        IEntity entity { get; }
+        T entity { get; }
     }
 }

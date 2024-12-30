@@ -6,14 +6,16 @@ namespace GameFramework
 {
     public interface IEntityManager
     {
+        TEntity CreateEntity<TEntity, TEntityCreationData>(TEntityCreationData creationData) where TEntity : IEntity where TEntityCreationData : IEntityCreationData;
+
         IEntity GetEntity(string entityId);
-        T GetEntity<T>(string entityId) where T : IEntity;
+        TEntity GetEntity<TEntity>(string entityId) where TEntity : IEntity;
 
         IEnumerable<IEntity> GetEntities();
-        IEnumerable<T> GetEntities<T>() where T : IEntity;
-
-        void DeleteEntityById(string entityId);
+        IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : IEntity;
 
         void UpdateEntities();
+
+        void DeleteEntityById(string entityId);
     }
 }
