@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IGamePresenter
+    public interface IGamePresenter<T> where T : IGame 
     {
-        IGame game { get; }
+        T game { get; }
     }
 }

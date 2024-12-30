@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public class MonoGamePresenter : MonoBehaviour, IGamePresenter
+    public class MonoGamePresenter<T> : MonoBehaviour, IGamePresenter<T> where T : IGame
     {
-        public IGame game { get; protected set; }
+        public T game { get; protected set; }
     }
 }
