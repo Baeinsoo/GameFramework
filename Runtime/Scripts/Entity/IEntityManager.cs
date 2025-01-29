@@ -6,7 +6,9 @@ namespace GameFramework
 {
     public interface IEntityManager
     {
-        TEntity CreateEntity<TEntity, TEntityCreationData>(TEntityCreationData creationData) where TEntity : IEntity where TEntityCreationData : IEntityCreationData;
+        TEntity CreateEntity<TEntity, TEntityCreationData>(TEntityCreationData creationData)
+            where TEntity : IEntity
+            where TEntityCreationData : struct, IEntityCreationData;
 
         IEntity GetEntity(string entityId);
         TEntity GetEntity<TEntity>(string entityId) where TEntity : IEntity;
