@@ -46,6 +46,12 @@ namespace GameFramework
             return this;
         }
 
+        public WebRequestBuilder<T> SetWebRequestInterceptor(IWebRequestInterceptor webRequestInterceptor)
+        {
+            webRequestParam.webRequestInterceptor = webRequestInterceptor;
+            return this;
+        }
+
         public WebRequest<T> Build()
         {
             return new WebRequest<T>(webRequestParam);

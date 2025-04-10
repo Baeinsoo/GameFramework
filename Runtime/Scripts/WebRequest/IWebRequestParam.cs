@@ -14,6 +14,7 @@ namespace GameFramework
         object requestBody { get; }
         List<IMultipartFormSection> form { get; }
         Func<string, T> deserialize { get; }
+        IWebRequestInterceptor webRequestInterceptor { get; }
     }
 
     public enum HttpMethod

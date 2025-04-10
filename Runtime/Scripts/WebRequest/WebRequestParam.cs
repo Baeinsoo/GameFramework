@@ -14,5 +14,6 @@ namespace GameFramework
         public object requestBody { get; set; }
         public List<IMultipartFormSection> form { get; set; }
         public Func<string, T> deserialize { get; set; }
+        public IWebRequestInterceptor webRequestInterceptor { get; set; }
     }
 }
