@@ -10,14 +10,7 @@ namespace GameFramework
 {
     public class WebRequest<T> : CustomYieldInstruction, IWebRequest<T>
     {
-        public override bool keepWaiting
-        {
-            get
-            {
-                bool isDone = asyncOperation != null && asyncOperation.isDone;
-                return isDone == false;
-            }
-        }
+        public override bool keepWaiting => !isCompleted;
 
         public UnityWebRequestAsyncOperation asyncOperation { get; private set; }
         public event Action completed;
@@ -29,6 +22,8 @@ namespace GameFramework
         public IWebRequestParam<T> webRequestParam { get; private set; }
 
         public T response { get; private set; }
+
+        private bool isCompleted = false;
 
         public WebRequest(IWebRequestParam<T> webRequestParam)
         {
@@ -55,6 +50,8 @@ namespace GameFramework
 
                     webRequestParam.webRequestInterceptor?.OnError(this.unityWebRequest, error);
                 }
+
+                isCompleted = true;
 
                 completed?.Invoke();
             };
