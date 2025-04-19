@@ -4,8 +4,11 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IEntityView<T> where T : IEntity
+    public interface IEntityView<TEntity, TEntityController>
+        where TEntity : IEntity
+        where TEntityController : IEntityController<TEntity>
     {
-        T entity { get; }
+        TEntity entity { get; }
+        TEntityController entityController { get; }
     }
 }

@@ -4,8 +4,21 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public class MonoEntityView<T> : MonoBehaviour, IEntityView<T> where T : IEntity
+    public class MonoEntityView<TEntity, TEntityController> : MonoBehaviour, IEntityView<TEntity, TEntityController> 
+        where TEntity : IEntity
+        where TEntityController : IEntityController<TEntity>
     {
-        public T entity { get; protected set; }
+        public TEntity entity { get; protected set; }
+        public TEntityController entityController { get; protected set; }
+
+        public void SetEntity(TEntity entity)
+        {
+            this.entity = entity;
+        }
+
+        public void SetEntityController(TEntityController entityController)
+        {
+            this.entityController = entityController;
+        }
     }
 }
