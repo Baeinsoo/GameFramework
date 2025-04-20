@@ -12,5 +12,10 @@ namespace GameFramework
         {
             this.entity = entity;
         }
+
+        protected virtual void OnDestroy()
+        {
+            entity = default;
+        }
     }
 }

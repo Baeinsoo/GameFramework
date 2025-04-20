@@ -20,5 +20,11 @@ namespace GameFramework
         {
             this.entityController = entityController;
         }
+
+        protected virtual void OnDestroy()
+        {
+            entity = default;
+            entityController = default;
+        }
     }
 }
