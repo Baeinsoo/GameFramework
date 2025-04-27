@@ -12,5 +12,9 @@ namespace GameFramework
 
         void Run(long tick, double interval, double elapsedTime);
         void UpdateEngine();
+
+        void AddListener(object listener);
+        void RemoveListener(object listener);
+        void DispatchEvent<T>();
     }
 }

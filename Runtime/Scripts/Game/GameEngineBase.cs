@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ namespace GameFramework
         public ITickUpdater tickUpdater { get; private set; }
 
         public bool initialized { get; protected set; }
+
+        private Dictionary<Type, Dictionary<object, Action>> listenerMap = new Dictionary<Type, Dictionary<object, Action>>();
 
         public virtual async Task InitializeAsync()
         {
@@ -54,5 +57,47 @@ namespace GameFramework
         }
 
         public abstract void UpdateEngine();
+
+        public virtual void AddListener(object listener)
+        {
+            var methods = listener.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+            foreach (var method in methods.OrEmpty())
+            {
+                var attribute = method.GetCustomAttribute<GameEngineListenAttribute>();
+                if (attribute == null)
+                {
+                    continue;
+                }
+
+                if (listenerMap.TryGetValue(attribute.type, out var listeners) == false)
+                {
+                    listeners = new Dictionary<object, Action>();
+                    listenerMap[attribute.type] = listeners;
+                }
+
+                Action action = (Action)Delegate.CreateDelegate(typeof(Action), listener, method);
+                listeners[listener] = action;
+            }
+        }
+
+        public virtual void RemoveListener(object listener)
+        {
+            foreach (var listeners in listenerMap.Values)
+            {
+                listeners.Remove(listener);
+            }
+        }
+
+        public void DispatchEvent<T>()
+        {
+            if (listenerMap.TryGetValue(typeof(T), out var listeners))
+            {
+                foreach (var action in listeners.Values)
+                {
+                    action.Invoke();
+                }
+            }
+        }
     }
 }
