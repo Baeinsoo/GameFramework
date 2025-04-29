@@ -9,7 +9,10 @@ namespace GameFramework
         IGame game { get; }
 
         Task StartGameAsync();
+    }
 
+    public interface IServerRoom : IRoom
+    {
         void OnPlayerConnect(IConnectionData data);
         void OnPlayerDisconnect(IConnectionData data);
     }
