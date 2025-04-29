@@ -60,7 +60,7 @@ namespace GameFramework
 
         protected virtual void OnElapsedTimeUpdate()
         {
-            elapsedTime += UnityEngine.Time.deltaTime;
+            elapsedTime += UnityEngine.Time.smoothDeltaTime;
         }
     }
 }
