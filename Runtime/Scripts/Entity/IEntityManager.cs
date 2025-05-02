@@ -22,5 +22,8 @@ namespace GameFramework
         void UpdateEntities();
 
         void DeleteEntityById(string entityId);
+
+        string GetUserIdByEntityId(string entityId);
+        TEntity GetEntityByUserId<TEntity>(string userId) where TEntity : IEntity;
     }
 }
