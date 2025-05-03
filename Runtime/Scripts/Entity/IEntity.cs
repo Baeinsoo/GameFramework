@@ -7,9 +7,9 @@ namespace GameFramework
     public interface IEntity
     {
         string entityId { get; }
-        Vector3 position { get; }
-        Vector3 rotation { get; }
-        Vector3 velocity { get; }
+        Vector3 position { get; set; }
+        Vector3 rotation { get; set; }
+        Vector3 velocity { get; set; }
         ICollection<IComponent> components { get; }
 
         IComponent AttachComponent(IComponent component);
