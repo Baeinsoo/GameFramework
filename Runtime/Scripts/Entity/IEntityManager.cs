@@ -25,5 +25,7 @@ namespace GameFramework
 
         string GetUserIdByEntityId(string entityId);
         TEntity GetEntityByUserId<TEntity>(string userId) where TEntity : IEntity;
+
+        string GenerateEntityId();
     }
 }
