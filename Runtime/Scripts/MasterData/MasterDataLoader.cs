@@ -3,23 +3,51 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace GameFramework
 {
     public static class MasterDataLoader
     {
-        public static List<T> LoadFromCSV<T>(string path) where T : IMasterData
+        public static async Task<List<T>> LoadFromCSV<T>(string relativePath) where T : IMasterData
         {
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(relativePath))
             {
-                throw new ArgumentNullException(nameof(path));
+                throw new ArgumentNullException(nameof(relativePath));
             }
 
-            var result = new List<T>();
-            using var reader = new StreamReader(path);
+            string uri;
 
-            string[] header = reader.ReadLine()?.Split(',');
+#if UNITY_ANDROID && !UNITY_EDITOR
+            uri = Path.Combine(Application.streamingAssetsPath, relativePath);
+#else
+            uri = "file://" + Path.Combine(Application.streamingAssetsPath, relativePath);
+#endif
+            var www = UnityWebRequest.Get(uri);
+            await www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"Failed to load CSV from {uri}: {www.error}");
+                return new List<T>();
+            }
+
+            string csvData = www.downloadHandler.text;
+            using (var reader = new StringReader(csvData))
+            {
+                return ParseCSVFromReader<T>(reader);
+            }
+        }
+
+        private static List<T> ParseCSVFromReader<T>(TextReader reader) where T : IMasterData
+        {
+            var result = new List<T>();
+            string[] header = reader.ReadLine()?.Split(',')
+                .Select(h => h.Trim().ToLower().Trim('\uFEFF')) //  remove BOM
+                .ToArray();
+
             if (header == null)
             {
                 return result;
@@ -28,9 +56,15 @@ namespace GameFramework
             var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
                                       .ToDictionary(p => p.Name.ToLower(), p => p);
 
-            while (!reader.EndOfStream)
+            while (true)
             {
-                string[] values = reader.ReadLine()?.Split(',');
+                string line = reader.ReadLine();
+                if (line == null)
+                {
+                    break;
+                }
+
+                string[] values = line.Split(',');
                 if (values == null || values.Length != header.Length)
                 {
                     continue;
