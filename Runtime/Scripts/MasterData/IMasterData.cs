@@ -4,6 +4,6 @@ namespace GameFramework
 {
     public interface IMasterData
     {
-        string code { get; }
+        string Code { get; }
     }
 }
