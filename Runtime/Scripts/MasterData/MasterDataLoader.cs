@@ -45,7 +45,7 @@ namespace GameFramework
         {
             var result = new List<T>();
             string[] header = reader.ReadLine()?.Split(',')
-                .Select(h => h.Trim().ToLower().Trim('\uFEFF')) //  remove BOM
+                .Select(h => h.Trim().Trim('\uFEFF')) //  remove BOM
                 .ToArray();
 
             if (header == null)
@@ -73,8 +73,10 @@ namespace GameFramework
                 T instance = Activator.CreateInstance<T>();
                 for (int i = 0; i < header.Length; i++)
                 {
-                    string columnName = header[i].Trim().ToLower();
-                    if (properties.TryGetValue(columnName, out PropertyInfo property))
+                    string columnName = header[i].Trim();
+                    PropertyInfo property = FindMatchingProperty(columnName, properties);
+
+                    if (property != null)
                     {
                         object convertedValue = ConvertValue(values[i], property.PropertyType);
                         property.SetValue(instance, convertedValue);
@@ -119,6 +121,49 @@ namespace GameFramework
             }
 
             return Convert.ChangeType(value, targetType);
+        }
+
+        /// <summary>
+        /// Finds a matching property for the given column name by trying multiple naming conventions
+        /// </summary>
+        private static PropertyInfo FindMatchingProperty(string columnName, Dictionary<string, PropertyInfo> properties)
+        {
+            // Try exact match (case-insensitive)
+            string lowerColumnName = columnName.ToLower();
+            if (properties.TryGetValue(lowerColumnName, out PropertyInfo exactMatch))
+            {
+                return exactMatch;
+            }
+
+            // Try converting snake_case to PascalCase
+            string pascalCaseName = ConvertSnakeCaseToPascalCase(columnName).ToLower();
+            if (properties.TryGetValue(pascalCaseName, out PropertyInfo pascalMatch))
+            {
+                return pascalMatch;
+            }
+
+            // Try removing underscores (snake_case -> snakecase)
+            string withoutUnderscores = columnName.Replace("_", "").ToLower();
+            if (properties.TryGetValue(withoutUnderscores, out PropertyInfo underscoreMatch))
+            {
+                return underscoreMatch;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Converts snake_case to PascalCase
+        /// Example: "player_name" -> "PlayerName", "max_hp" -> "MaxHp"
+        /// </summary>
+        private static string ConvertSnakeCaseToPascalCase(string snakeCase)
+        {
+            if (string.IsNullOrEmpty(snakeCase))
+                return snakeCase;
+
+            return string.Join("", snakeCase.Split('_')
+                .Select(word => string.IsNullOrEmpty(word) ? word :
+                    char.ToUpper(word[0]) + word.Substring(1).ToLower()));
         }
 
         private static object GetDefaultValue(Type type)
