@@ -27,6 +27,19 @@ namespace GameFramework
             components.Remove(component);
         }
 
+        public TComponent QueryComponent<TComponent>() where TComponent : IComponent
+        {
+            foreach (var component in components.OrEmpty())
+            {
+                if (component is TComponent typedComponent)
+                {
+                    return typedComponent;
+                }
+            }
+
+            return default;
+        }
+
         public abstract void UpdateEntity();
     }
 }
