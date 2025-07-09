@@ -15,6 +15,8 @@ namespace GameFramework
         IComponent AttachComponent(IComponent component);
         void DetachComponent(IComponent component);
 
+        TComponent QueryComponent<TComponent>() where TComponent : IComponent;
+
         void UpdateEntity();
     }
 }
