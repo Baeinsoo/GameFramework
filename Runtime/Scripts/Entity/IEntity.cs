@@ -12,10 +12,13 @@ namespace GameFramework
         Vector3 velocity { get; set; }
         ICollection<IComponent> components { get; }
 
-        IComponent AttachComponent(IComponent component);
-        void DetachComponent(IComponent component);
+        IComponent AttachEntityComponent(IComponent component);
+        void DetachEntityComponent(IComponent component);
 
-        TComponent QueryComponent<TComponent>() where TComponent : IComponent;
+        TComponent GetEntityComponent<TComponent>() where TComponent : IComponent;
+        TComponent[] GetEntityComponents<TComponent>() where TComponent : IComponent;
+
+        bool TryGetEntityComponent<TComponent>(out TComponent component) where TComponent : IComponent;
 
         void UpdateEntity();
     }

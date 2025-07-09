@@ -12,7 +12,7 @@ namespace GameFramework
         public virtual Vector3 velocity { get; set; }
         public virtual ICollection<IComponent> components { get; } = new List<IComponent>();
 
-        public virtual IComponent AttachComponent(IComponent component)
+        public virtual IComponent AttachEntityComponent(IComponent component)
         {
             components.Add(component);
 
@@ -20,14 +20,14 @@ namespace GameFramework
             return component;
         }
 
-        public virtual void DetachComponent(IComponent component)
+        public virtual void DetachEntityComponent(IComponent component)
         {
             component.OnDetach();
 
             components.Remove(component);
         }
 
-        public TComponent QueryComponent<TComponent>() where TComponent : IComponent
+        public TComponent GetEntityComponent<TComponent>() where TComponent : IComponent
         {
             foreach (var component in components.OrEmpty())
             {
@@ -38,6 +38,27 @@ namespace GameFramework
             }
 
             return default;
+        }
+
+        public TComponent[] GetEntityComponents<TComponent>() where TComponent : IComponent
+        {
+            List<TComponent> typedComponents = new List<TComponent>();
+
+            foreach (var component in components.OrEmpty())
+            {
+                if (component is TComponent typedComponent)
+                {
+                    typedComponents.Add(typedComponent);
+                }
+            }
+
+            return typedComponents.ToArray();
+        }
+
+        public bool TryGetEntityComponent<TComponent>(out TComponent component) where TComponent : IComponent
+        {
+            component = GetEntityComponent<TComponent>();
+            return component != null;
         }
 
         public abstract void UpdateEntity();
