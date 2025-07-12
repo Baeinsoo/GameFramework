@@ -13,14 +13,7 @@ namespace GameFramework
         ICollection<IComponent> components { get; }
 
         IComponent AttachEntityComponent(IComponent component);
-        TComponent AttachEntityComponent<TComponent>(TComponent component) where TComponent : IComponent;
-
         void DetachEntityComponent(IComponent component);
-
-        TComponent GetEntityComponent<TComponent>() where TComponent : IComponent;
-        TComponent[] GetEntityComponents<TComponent>() where TComponent : IComponent;
-
-        bool TryGetEntityComponent<TComponent>(out TComponent component) where TComponent : IComponent;
 
         void UpdateEntity();
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -16,9 +17,53 @@ namespace GameFramework
             };
         }
 
-        public static TComponent AttachEntityComponent<TComponent>(this MonoEntity entity) where TComponent : MonoComponent
+        public static TComponent GetEntityComponent<TComponent>(this IEntity entity) where TComponent : IComponent
         {
-            return entity.AttachEntityComponent(entity.gameObject.AddComponent<TComponent>());
+            foreach (var component in entity.components.OrEmpty())
+            {
+                if (component is TComponent typedComponent)
+                {
+                    return typedComponent;
+                }
+            }
+
+            return default;
+        }
+
+        public static TComponent[] GetEntityComponents<TComponent>(this IEntity entity) where TComponent : IComponent
+        {
+            List<TComponent> typedComponents = new List<TComponent>();
+
+            foreach (var component in entity.components.OrEmpty())
+            {
+                if (component is TComponent typedComponent)
+                {
+                    typedComponents.Add(typedComponent);
+                }
+            }
+
+            return typedComponents.ToArray();
+        }
+
+        public static bool TryGetEntityComponent<TComponent>(this IEntity entity, out TComponent component) where TComponent : IComponent
+        {
+            component = entity.GetEntityComponent<TComponent>();
+            return component != null;
+        }
+
+        public static TComponent FindEntityComponent<TComponent>(this IEntity entity, Func<TComponent, bool> predicate) where TComponent : IComponent
+        {
+            return entity.GetEntityComponents<TComponent>().FirstOrDefault(predicate);
+        }
+
+        public static TComponent AddEntityComponent<TComponent>(this MonoEntity entity) where TComponent : MonoComponent
+        {
+            return entity.AttachEntityComponent(entity.gameObject.AddComponent<TComponent>()) as TComponent;
+        }
+
+        public static IComponent AddEntityComponent(this MonoEntity entity, Type type)
+        {
+            return entity.AttachEntityComponent(entity.gameObject.AddComponent(type) as IComponent);
         }
 
         // TODO: 고도화 필요!
