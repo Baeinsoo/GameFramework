@@ -12,15 +12,21 @@ namespace GameFramework
         public virtual Vector3 velocity { get; set; }
         public virtual ICollection<IComponent> components { get; } = new List<IComponent>();
 
-        public virtual IComponent AttachEntityComponent(IComponent component)
+        public IComponent AttachEntityComponent(IComponent component)
         {
             components.Add(component);
-
             component.OnAttach(this);
             return component;
         }
 
-        public virtual void DetachEntityComponent(IComponent component)
+        public TComponent AttachEntityComponent<TComponent>(TComponent component) where TComponent : IComponent
+        {
+            components.Add(component);
+            component.OnAttach(this);
+            return component;
+        }
+
+        public void DetachEntityComponent(IComponent component)
         {
             component.OnDetach();
 

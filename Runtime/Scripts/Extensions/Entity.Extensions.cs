@@ -16,6 +16,11 @@ namespace GameFramework
             };
         }
 
+        public static TComponent AttachEntityComponent<TComponent>(this MonoEntity entity) where TComponent : MonoComponent
+        {
+            return entity.AttachEntityComponent(entity.gameObject.AddComponent<TComponent>());
+        }
+
         // TODO: 고도화 필요!
         [Obsolete("임시 구현: 고도화 필요!")]
         public static bool IsGrounded(this IEntity entity)
