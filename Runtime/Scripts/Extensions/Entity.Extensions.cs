@@ -51,6 +51,11 @@ namespace GameFramework
             return component != null;
         }
 
+        public static bool HasEntityComponent<TComponent>(this IEntity entity) where TComponent : IComponent
+        {
+            return entity.GetEntityComponent<TComponent>() != null;
+        }
+
         public static TComponent FindEntityComponent<TComponent>(this IEntity entity, Func<TComponent, bool> predicate) where TComponent : IComponent
         {
             return entity.GetEntityComponents<TComponent>().FirstOrDefault(predicate);
