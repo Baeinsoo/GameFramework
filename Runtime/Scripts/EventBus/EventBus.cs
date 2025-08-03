@@ -78,56 +78,59 @@ namespace GameFramework
         {
             if (string.IsNullOrEmpty(topic))
             {
-                throw new ArgumentException("Topic cannot be null or empty", nameof(topic));
+                throw new ArgumentException("Topic cannot be null or empty!");
             }
 
-            PublishToTopic<T>(topic, data);
-            PublishToWildcardTopics<T>(topic, data);
-        }
+            var dataType = data?.GetType() ?? typeof(T);
+            var executedHandlers = new HashSet<object>();
 
-        private void PublishToTopic<T>(string topic, T data)
-        {
-            if (handlers.ContainsKey(topic) == false)
-            {
-                return;
-            }
-
-            List<HandlerWrapper<T>> typedHandlers = handlers[topic]
-                .OfType<HandlerWrapper<T>>()
-                .ToList();
-
-            foreach (var wrapper in typedHandlers)
-            {
-                try
-                {
-                    wrapper.Handler?.Invoke(data);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"Error executing handler for topic '{topic}': {ex.Message}");
-                }
-            }
-        }
-
-        private void PublishToWildcardTopics<T>(string topic, T data)
-        {
             foreach (var kvp in handlers.ToList())
             {
-                if (IsWildcardMatch(kvp.Key, topic))
-                {
-                    var typedHandlers = kvp.Value
-                        .OfType<HandlerWrapper<T>>()
-                        .ToList();
+                bool isMatch = kvp.Key == topic || IsWildcardMatch(kvp.Key, topic);
 
-                    foreach (var wrapper in typedHandlers)
+                if (isMatch)
+                {
+                    foreach (var handler in kvp.Value.ToList())
                     {
+                        if (executedHandlers.Contains(handler))
+                        {
+                            Debug.LogWarning($"Handler for topic '{topic}' (pattern: '{kvp.Key}') has already been executed. Skipping duplicate execution. handler: {handler}");
+                            continue;
+                        }
+
                         try
                         {
-                            wrapper.Handler?.Invoke(data);
+                            var handlerType = handler.GetType();
+                            if (handlerType.IsGenericType && handlerType.GetGenericTypeDefinition() == typeof(HandlerWrapper<>))
+                            {
+                                var expectedType = handlerType.GetGenericArguments()[0];
+
+                                if (expectedType.IsAssignableFrom(dataType))
+                                {
+                                    var handlerProperty = handlerType.GetProperty("Handler");
+                                    var handlerDelegate = handlerProperty?.GetValue(handler) as Delegate;
+                                    handlerDelegate?.DynamicInvoke(data);
+
+                                    executedHandlers.Add(handler);
+                                }
+                            }
                         }
-                        catch (Exception ex)
+                        catch (System.Reflection.TargetInvocationException e)
                         {
-                            Debug.LogError($"Error executing wildcard handler for pattern '{kvp.Key}' matching topic '{topic}': {ex.Message}");
+                            var innerException = e.InnerException ?? e;
+                            Debug.LogError($"Error executing handler for topic '{topic}' (pattern: '{kvp.Key}'): {innerException.Message}\n" +
+                                           $"Handler Type: {handler.GetType()}\n" +
+                                           $"Data Type: {dataType}\n" +
+                                           $"Inner Exception: {innerException}\n" +
+                                           $"Stack Trace: {innerException.StackTrace}");
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError($"Error executing handler for topic '{topic}' (pattern: '{kvp.Key}'): {e.Message}\n" +
+                                           $"Handler Type: {handler.GetType()}\n" +
+                                           $"Data Type: {dataType}\n" +
+                                           $"Exception: {e}\n" +
+                                           $"Stack Trace: {e.StackTrace}");
                         }
                     }
                 }
@@ -175,16 +178,6 @@ namespace GameFramework
         public int GetHandlerCount(string topic)
         {
             return handlers.ContainsKey(topic) ? handlers[topic].Count : 0;
-        }
-
-        private class HandlerWrapper<T>
-        {
-            public Action<T> Handler { get; }
-
-            public HandlerWrapper(Action<T> handler)
-            {
-                Handler = handler;
-            }
         }
     }
 }
