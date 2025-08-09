@@ -12,8 +12,5 @@ namespace GameFramework
         void Publish<T>(string topic, T data);
 
         void Clear();
-
-        bool HasTopic(string topic);
-        int GetHandlerCount(string topic);
     }
 }

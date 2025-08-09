@@ -7,7 +7,7 @@ namespace GameFramework
 {
     public class EventBus : IEventBus
     {
-        private readonly Dictionary<string, List<object>> handlers = new Dictionary<string, List<object>>();
+        private readonly Dictionary<string, Dictionary<Type, List<object>>> handlers = new Dictionary<string, Dictionary<Type, List<object>>>();
 
         public void Subscribe<T>(string topic, Action<T> handler)
         {
@@ -23,11 +23,18 @@ namespace GameFramework
 
             if (handlers.ContainsKey(topic) == false)
             {
-                handlers[topic] = new List<object>();
+                handlers[topic] = new Dictionary<Type, List<object>>();
+            }
+
+            Type handlerType = typeof(T);
+
+            if (handlers[topic].ContainsKey(handlerType) == false)
+            {
+                handlers[topic][handlerType] = new List<object>();
             }
 
             HandlerWrapper<T> wrapper = new HandlerWrapper<T>(handler);
-            handlers[topic].Add(wrapper);
+            handlers[topic][handlerType].Add(wrapper);
         }
 
         public void Unsubscribe<T>(string topic, Action<T> handler)
@@ -47,20 +54,32 @@ namespace GameFramework
                 throw new KeyNotFoundException($"No handlers found for topic '{topic}'");
             }
 
-            List<object> handlersToRemove = handlers[topic]
-                .OfType<HandlerWrapper<T>>()
-                .Where(w => ReferenceEquals(w.Handler, handler))
-                .Cast<object>()
-                .ToList();
+            Type handlerType = typeof(T);
+
+            if (handlers[topic].ContainsKey(handlerType) == false)
+            {
+                throw new KeyNotFoundException($"No handlers found for topic '{topic}' and type '{handlerType}'");
+            }
+
+            List<object> handlersToRemove = handlers[topic][handlerType]
+                    .OfType<HandlerWrapper<T>>()
+                    .Where(w => ReferenceEquals(w.Handler, handler))
+                    .Cast<object>()
+                    .ToList();
 
             foreach (var handlerToRemove in handlersToRemove)
             {
-                handlers[topic].Remove(handlerToRemove);
+                handlers[topic][handlerType].Remove(handlerToRemove);
             }
 
-            if (handlers[topic].Count == 0)
+            if (handlers[topic][handlerType].Count == 0)
             {
-                handlers.Remove(topic);
+                handlers[topic].Remove(handlerType);
+
+                if (handlers[topic].Count == 0)
+                {
+                    handlers.Remove(topic);
+                }
             }
         }
 
@@ -81,16 +100,20 @@ namespace GameFramework
                 throw new ArgumentException("Topic cannot be null or empty!");
             }
 
-            var dataType = data?.GetType() ?? typeof(T);
-            var executedHandlers = new HashSet<object>();
+            Type dataType = data.GetType();
+            HashSet<object> executedHandlers = new HashSet<object>();
 
             foreach (var kvp in handlers.ToList())
             {
                 bool isMatch = kvp.Key == topic || IsWildcardMatch(kvp.Key, topic);
-
-                if (isMatch)
+                if (isMatch == false)
                 {
-                    foreach (var handler in kvp.Value.ToList())
+                    continue;
+                }
+
+                if (kvp.Value.TryGetValue(dataType, out var handlers))
+                {
+                    foreach (var handler in handlers.ToList())
                     {
                         if (executedHandlers.Contains(handler))
                         {
@@ -100,19 +123,14 @@ namespace GameFramework
 
                         try
                         {
-                            var handlerType = handler.GetType();
+                            Type handlerType = handler.GetType();
                             if (handlerType.IsGenericType && handlerType.GetGenericTypeDefinition() == typeof(HandlerWrapper<>))
                             {
-                                var expectedType = handlerType.GetGenericArguments()[0];
+                                var handlerProperty = handlerType.GetProperty("Handler");
+                                var handlerDelegate = handlerProperty?.GetValue(handler) as Delegate;
+                                handlerDelegate?.DynamicInvoke(data);
 
-                                if (expectedType.IsAssignableFrom(dataType))
-                                {
-                                    var handlerProperty = handlerType.GetProperty("Handler");
-                                    var handlerDelegate = handlerProperty?.GetValue(handler) as Delegate;
-                                    handlerDelegate?.DynamicInvoke(data);
-
-                                    executedHandlers.Add(handler);
-                                }
+                                executedHandlers.Add(handler);
                             }
                         }
                         catch (System.Reflection.TargetInvocationException e)
@@ -168,16 +186,6 @@ namespace GameFramework
         public void Clear()
         {
             handlers.Clear();
-        }
-
-        public bool HasTopic(string topic)
-        {
-            return handlers.ContainsKey(topic) && handlers[topic].Count > 0;
-        }
-
-        public int GetHandlerCount(string topic)
-        {
-            return handlers.ContainsKey(topic) ? handlers[topic].Count : 0;
         }
     }
 }
