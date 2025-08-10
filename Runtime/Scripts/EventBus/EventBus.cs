@@ -7,9 +7,15 @@ namespace GameFramework
 {
     public class EventBus : IEventBus
     {
-        private readonly Dictionary<string, Dictionary<Type, List<object>>> handlers = new Dictionary<string, Dictionary<Type, List<object>>>();
+        private readonly Dictionary<string, Dictionary<Type, SortedDictionary<int, List<object>>>> handlers = 
+            new Dictionary<string, Dictionary<Type, SortedDictionary<int, List<object>>>>();
 
         public void Subscribe<T>(string topic, Action<T> handler)
+        {
+            Subscribe(topic, handler, 0);
+        }
+
+        public void Subscribe<T>(string topic, Action<T> handler, int priority)
         {
             if (string.IsNullOrEmpty(topic))
             {
@@ -21,20 +27,25 @@ namespace GameFramework
                 throw new ArgumentNullException(nameof(handler));
             }
 
-            if (handlers.ContainsKey(topic) == false)
-            {
-                handlers[topic] = new Dictionary<Type, List<object>>();
-            }
-
             Type handlerType = typeof(T);
 
-            if (handlers[topic].ContainsKey(handlerType) == false)
+            if (!handlers.ContainsKey(topic))
             {
-                handlers[topic][handlerType] = new List<object>();
+                handlers[topic] = new Dictionary<Type, SortedDictionary<int, List<object>>>();
+            }
+
+            if (!handlers[topic].ContainsKey(handlerType))
+            {
+                handlers[topic][handlerType] = new SortedDictionary<int, List<object>>();
+            }
+
+            if (!handlers[topic][handlerType].ContainsKey(priority))
+            {
+                handlers[topic][handlerType][priority] = new List<object>();
             }
 
             HandlerWrapper<T> wrapper = new HandlerWrapper<T>(handler);
-            handlers[topic][handlerType].Add(wrapper);
+            handlers[topic][handlerType][priority].Add(wrapper);
         }
 
         public void Unsubscribe<T>(string topic, Action<T> handler)
@@ -49,30 +60,49 @@ namespace GameFramework
                 throw new ArgumentNullException(nameof(handler));
             }
 
-            if (handlers.ContainsKey(topic) == false)
+            if (!handlers.ContainsKey(topic))
             {
                 throw new KeyNotFoundException($"No handlers found for topic '{topic}'");
             }
 
             Type handlerType = typeof(T);
 
-            if (handlers[topic].ContainsKey(handlerType) == false)
+            if (!handlers[topic].ContainsKey(handlerType))
             {
                 throw new KeyNotFoundException($"No handlers found for topic '{topic}' and type '{handlerType}'");
             }
 
-            List<object> handlersToRemove = handlers[topic][handlerType]
+            var priorityDict = handlers[topic][handlerType];
+            var prioritiesToRemove = new List<int>();
+
+            foreach (var kvp in priorityDict)
+            {
+                var priority = kvp.Key;
+                var handlerList = kvp.Value;
+
+                var handlersToRemove = handlerList
                     .OfType<HandlerWrapper<T>>()
                     .Where(w => ReferenceEquals(w.Handler, handler))
                     .Cast<object>()
                     .ToList();
 
-            foreach (var handlerToRemove in handlersToRemove)
-            {
-                handlers[topic][handlerType].Remove(handlerToRemove);
+                foreach (var handlerToRemove in handlersToRemove)
+                {
+                    handlerList.Remove(handlerToRemove);
+                }
+
+                if (handlerList.Count == 0)
+                {
+                    prioritiesToRemove.Add(priority);
+                }
             }
 
-            if (handlers[topic][handlerType].Count == 0)
+            foreach (var priority in prioritiesToRemove)
+            {
+                priorityDict.Remove(priority);
+            }
+
+            if (priorityDict.Count == 0)
             {
                 handlers[topic].Remove(handlerType);
 
@@ -106,49 +136,52 @@ namespace GameFramework
             foreach (var kvp in handlers.ToList())
             {
                 bool isMatch = kvp.Key == topic || IsWildcardMatch(kvp.Key, topic);
-                if (isMatch == false)
+                if (!isMatch)
                 {
                     continue;
                 }
 
-                if (kvp.Value.TryGetValue(dataType, out var handlers))
+                if (kvp.Value.TryGetValue(dataType, out var priorityDict))
                 {
-                    foreach (var handler in handlers.ToList())
+                    foreach (var handlerList in priorityDict.Values.ToList())
                     {
-                        if (executedHandlers.Contains(handler))
+                        foreach (var handler in handlerList.ToList())
                         {
-                            Debug.LogWarning($"Handler for topic '{topic}' (pattern: '{kvp.Key}') has already been executed. Skipping duplicate execution. handler: {handler}");
-                            continue;
-                        }
-
-                        try
-                        {
-                            Type handlerType = handler.GetType();
-                            if (handlerType.IsGenericType && handlerType.GetGenericTypeDefinition() == typeof(HandlerWrapper<>))
+                            if (executedHandlers.Contains(handler))
                             {
-                                var handlerProperty = handlerType.GetProperty("Handler");
-                                var handlerDelegate = handlerProperty?.GetValue(handler) as Delegate;
-                                handlerDelegate?.DynamicInvoke(data);
-
-                                executedHandlers.Add(handler);
+                                Debug.LogWarning($"Handler for topic '{topic}' (pattern: '{kvp.Key}') has already been executed. Skipping duplicate execution. handler: {handler}");
+                                continue;
                             }
-                        }
-                        catch (System.Reflection.TargetInvocationException e)
-                        {
-                            var innerException = e.InnerException ?? e;
-                            Debug.LogError($"Error executing handler for topic '{topic}' (pattern: '{kvp.Key}'): {innerException.Message}\n" +
-                                           $"Handler Type: {handler.GetType()}\n" +
-                                           $"Data Type: {dataType}\n" +
-                                           $"Inner Exception: {innerException}\n" +
-                                           $"Stack Trace: {innerException.StackTrace}");
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError($"Error executing handler for topic '{topic}' (pattern: '{kvp.Key}'): {e.Message}\n" +
-                                           $"Handler Type: {handler.GetType()}\n" +
-                                           $"Data Type: {dataType}\n" +
-                                           $"Exception: {e}\n" +
-                                           $"Stack Trace: {e.StackTrace}");
+
+                            try
+                            {
+                                Type handlerType = handler.GetType();
+                                if (handlerType.IsGenericType && handlerType.GetGenericTypeDefinition() == typeof(HandlerWrapper<>))
+                                {
+                                    var handlerProperty = handlerType.GetProperty("Handler");
+                                    var handlerDelegate = handlerProperty?.GetValue(handler) as Delegate;
+                                    handlerDelegate?.DynamicInvoke(data);
+
+                                    executedHandlers.Add(handler);
+                                }
+                            }
+                            catch (System.Reflection.TargetInvocationException e)
+                            {
+                                var innerException = e.InnerException ?? e;
+                                Debug.LogError($"Error executing handler for topic '{topic}' (pattern: '{kvp.Key}'): {innerException.Message}\n" +
+                                               $"Handler Type: {handler.GetType()}\n" +
+                                               $"Data Type: {dataType}\n" +
+                                               $"Inner Exception: {innerException}\n" +
+                                               $"Stack Trace: {innerException.StackTrace}");
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogError($"Error executing handler for topic '{topic}' (pattern: '{kvp.Key}'): {e.Message}\n" +
+                                               $"Handler Type: {handler.GetType()}\n" +
+                                               $"Data Type: {dataType}\n" +
+                                               $"Exception: {e}\n" +
+                                               $"Stack Trace: {e.StackTrace}");
+                            }
                         }
                     }
                 }
@@ -157,7 +190,7 @@ namespace GameFramework
 
         private bool IsWildcardMatch(string pattern, string topic)
         {
-            if (pattern.Contains("*") == false)
+            if (!pattern.Contains("*"))
             {
                 return false;
             }
