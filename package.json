@@ -4,8 +4,5 @@
     "description": "GameFramework for Unity.",
     "displayName": "GameFramework",
     "unity": "2022.3",
-    "author": { "name": "insoo.bae" },
-    "dependencies": {
-        "jp.hadashikick.vcontainer": "https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.16.2"
-    }
+    "author": { "name": "insoo.bae" }
 }
