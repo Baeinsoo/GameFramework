@@ -6,6 +6,6 @@
     "unity": "2022.3",
     "author": { "name": "insoo.bae" },
     "dependencies": {
-        "jp.hadashikick.vcontainer": "https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.16.2"
+        "jp.hadashikick.vcontainer": "1.16.2"
     }
 }
