@@ -3,11 +3,13 @@ namespace GameFramework
 {
     public interface IActionManager
     {
-        bool TryExecuteAction(IEntity entity, string actionCode);
+        bool TryStartAction(IEntity entity, string actionCode);
+        bool TryEndAction(IEntity entity, string actionCode);
     }
 
     public interface IActionManager<TEntity> : IActionManager where TEntity : IEntity
     {
-        bool TryExecuteAction(TEntity entity, string actionCode);
+        bool TryStartAction(TEntity entity, string actionCode);
+        bool TryEndAction(TEntity entity, string actionCode);
     }
 }
