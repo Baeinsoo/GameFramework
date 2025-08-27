@@ -1,11 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IEntityController<T> where T : IEntity
+    public interface IEntityController : ICleanup
     {
-        T entity { get; }
+        IEntity entity { get; }
+    }
+
+    public interface IEntityController<T> : IEntityController where T : IEntity
+    {
+        new T entity { get; }
     }
 }

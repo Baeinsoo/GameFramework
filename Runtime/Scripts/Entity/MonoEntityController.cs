@@ -6,6 +6,8 @@ namespace GameFramework
 {
     public class MonoEntityController<T> : MonoBehaviour, IEntityController<T> where T : IEntity
     {
+        IEntity IEntityController.entity => entity;
+
         public T entity { get; protected set; }
 
         public void SetEntity(T entity)
@@ -13,7 +15,7 @@ namespace GameFramework
             this.entity = entity;
         }
 
-        protected virtual void OnDestroy()
+        public virtual void Cleanup()
         {
             entity = default;
         }

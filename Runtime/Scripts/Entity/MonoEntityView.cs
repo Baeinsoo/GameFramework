@@ -8,6 +8,9 @@ namespace GameFramework
         where TEntity : IEntity
         where TEntityController : IEntityController<TEntity>
     {
+        IEntity IEntityView.entity => entity;
+        IEntityController IEntityView.entityController => entityController;
+
         public TEntity entity { get; protected set; }
         public TEntityController entityController { get; protected set; }
 
@@ -21,7 +24,7 @@ namespace GameFramework
             this.entityController = entityController;
         }
 
-        protected virtual void OnDestroy()
+        public virtual void Cleanup()
         {
             entity = default;
             entityController = default;
