@@ -10,8 +10,6 @@ namespace GameFramework
 
         private CancellationTokenSource cts;
 
-        protected CancellationToken exitToken => cts?.Token ?? CancellationToken.None;
-
         public void Enter()
         {
             cts = new CancellationTokenSource();
