@@ -24,5 +24,13 @@ namespace GameFramework.World
                 health.Current = health.Max;
             }
         }
+
+        /// <summary>
+        /// 데미지 결과 이벤트를 그대로 Health에 반영한다. 결정/계산/가드 없음 (Application 메서드).
+        /// </summary>
+        public void ApplyDamageDealt(Health health, DamageDealtEvent e)
+        {
+            health.Current = e.remaining;
+        }
     }
 }
