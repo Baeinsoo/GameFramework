@@ -66,5 +66,39 @@ namespace GameFramework.World.Tests
             Assert.AreEqual(80, health.Current);
             Assert.AreEqual(200, health.Max);
         }
+
+        [Test]
+        public void ApplyDamageDealt_writes_remaining_to_Current()
+        {
+            var health = new Health(100);
+            var e = new DamageDealtEvent("1", "2", amount: 30, isCritical: false, isDodged: false, remaining: 70, isDead: false);
+
+            _system.ApplyDamageDealt(health, e);
+
+            Assert.AreEqual(70, health.Current);
+        }
+
+        [Test]
+        public void ApplyDamageDealt_writes_zero_when_event_says_dead()
+        {
+            var health = new Health(100) { Current = 50 };
+            var e = new DamageDealtEvent("1", "2", amount: 60, isCritical: true, isDodged: false, remaining: 0, isDead: true);
+
+            _system.ApplyDamageDealt(health, e);
+
+            Assert.AreEqual(0, health.Current);
+        }
+
+        [Test]
+        public void ApplyDamageDealt_does_not_branch_on_isDodged_or_isCritical()
+        {
+            // Application 메서드는 결정 없음 — remaining을 그대로 씀. isDodged/isCritical은 무시.
+            var health = new Health(100);
+            var e = new DamageDealtEvent("1", "2", amount: 999, isCritical: true, isDodged: true, remaining: 42, isDead: false);
+
+            _system.ApplyDamageDealt(health, e);
+
+            Assert.AreEqual(42, health.Current);
+        }
     }
 }
