@@ -13,5 +13,6 @@ namespace GameFramework
         IGameEngine gameEngine { get; }
 
         void Run(long tick, double interval, double elapsedTime);
+        void Stop();
     }
 }

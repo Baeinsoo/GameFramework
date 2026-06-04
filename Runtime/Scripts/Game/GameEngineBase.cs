@@ -27,6 +27,12 @@ namespace GameFramework
 
         public virtual async Task DeinitializeAsync()
         {
+            // teardown 시점에 정적 current를 정리한다 (Stop()은 일시정지라 current를 유지).
+            if (GameEngine.current == this)
+            {
+                GameEngine.current = null;
+            }
+
             tickUpdater.onTick -= OnTick;
             tickUpdater = null;
             entityManager = null;
@@ -43,11 +49,7 @@ namespace GameFramework
 
         public void Stop()
         {
-            if (GameEngine.current == this)
-            {
-                GameEngine.current = null;
-            }
-
+            // 일시정지: 틱만 멈춘다. 정적 current는 유지(정지 중에도 GameEngine.Time 등이 유효해야 함).
             tickUpdater.Stop();
         }
 
