@@ -1,7 +1,9 @@
 {
     "name": "baegames.GameFramework.Runtime",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "VContainer"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
