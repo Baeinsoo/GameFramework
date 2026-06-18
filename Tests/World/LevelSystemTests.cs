@@ -103,5 +103,26 @@ namespace GameFramework.World.Tests
 
             Assert.AreEqual(0, gained);
         }
+
+        [Test]
+        public void ApplyAuthoritativeState_overwrites_Value_and_Exp()
+        {
+            var level = NewLevel(value: 1, exp: 10, expToNext: 100);
+
+            _system.ApplyAuthoritativeState(level, value: 5, exp: 250);
+
+            Assert.AreEqual(5, level.Value);
+            Assert.AreEqual(250, level.Exp);
+        }
+
+        [Test]
+        public void ApplyAuthoritativeState_does_not_touch_ExpToNext()
+        {
+            var level = NewLevel(value: 1, exp: 0, expToNext: 100);
+
+            _system.ApplyAuthoritativeState(level, value: 3, exp: 40);
+
+            Assert.AreEqual(100, level.ExpToNext);
+        }
     }
 }
