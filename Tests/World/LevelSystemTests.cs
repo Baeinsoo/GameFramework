@@ -63,5 +63,45 @@ namespace GameFramework.World.Tests
             Assert.AreEqual(1, level.Value);
             Assert.AreEqual(50, level.Exp);
         }
+
+        [Test]
+        public void AddExperience_below_threshold_returns_zero_levels_gained()
+        {
+            var level = NewLevel();
+
+            int gained = _system.AddExperience(level, 50);
+
+            Assert.AreEqual(0, gained);
+        }
+
+        [Test]
+        public void AddExperience_reaching_threshold_returns_one_level_gained()
+        {
+            var level = NewLevel();
+
+            int gained = _system.AddExperience(level, 120);
+
+            Assert.AreEqual(1, gained);
+        }
+
+        [Test]
+        public void AddExperience_spanning_multiple_levels_returns_levels_gained()
+        {
+            var level = NewLevel();
+
+            int gained = _system.AddExperience(level, 250);
+
+            Assert.AreEqual(2, gained);
+        }
+
+        [Test]
+        public void AddExperience_with_nonpositive_threshold_returns_zero()
+        {
+            var level = NewLevel(value: 1, exp: 0, expToNext: 0);
+
+            int gained = _system.AddExperience(level, 50);
+
+            Assert.AreEqual(0, gained);
+        }
     }
 }
