@@ -21,6 +21,7 @@ namespace GameFramework.World
 
         /// <summary>
         /// 권위 스냅샷 등으로 Value/Exp를 통째로 덮어쓴다. 결정/계산/가드 없음 (Application 메서드).
+        /// Level은 상한이 없어 Health/Mana와 달리 클램프하지 않는다(권위 값을 그대로 신뢰).
         /// ExpToNext는 wire 미전송 상수라 건드리지 않는다(생성 시 시드 값 유지).
         /// </summary>
         public void ApplyAuthoritativeState(Level level, int value, long exp)
