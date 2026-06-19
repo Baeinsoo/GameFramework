@@ -48,5 +48,20 @@ namespace GameFramework.World
         {
             return stats.Modifiers.RemoveAll(modifier => modifier.SourceId == sourceId) > 0;
         }
+
+        /// <summary>베이스 스탯 값을 설정(덮어쓰기)한다. 권위 시드/적용용. 모디파이어는 건드리지 않는다.</summary>
+        public void SetBase(Stats stats, int statType, float value)
+        {
+            stats.BaseStats[statType] = value;
+        }
+
+        /// <summary>베이스 스탯에 delta를 더하고(없으면 0 기준) 새 베이스 값을 반환한다. 스탯 포인트 할당용.</summary>
+        public float AddBase(Stats stats, int statType, float delta)
+        {
+            stats.BaseStats.TryGetValue(statType, out var current);
+            float next = current + delta;
+            stats.BaseStats[statType] = next;
+            return next;
+        }
     }
 }
