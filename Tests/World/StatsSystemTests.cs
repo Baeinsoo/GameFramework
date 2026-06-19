@@ -161,16 +161,16 @@ namespace GameFramework.World.Tests
         }
 
         [Test]
-        public void AddBase_does_not_affect_modifiers()
+        public void AddBase_preserves_modifiers_on_same_stat()
         {
             var stats = new Stats();
-            _system.AddModifier(stats, Flat(Stat.Attack, 20f));
             _system.SetBase(stats, (int)EntityStatType.Strength, 5f);
+            _system.AddModifier(stats, new StatModifier((int)EntityStatType.Strength, 10f, ModifierType.Flat, "buff"));
 
             _system.AddBase(stats, (int)EntityStatType.Strength, 3f);
 
-            Assert.AreEqual(8f, _system.GetValue(stats, (int)EntityStatType.Strength));
-            Assert.AreEqual(20f, _system.GetValue(stats, (int)Stat.Attack));
+            // base 5+3=8, plus flat modifier 10 → GetValue 18
+            Assert.AreEqual(18f, _system.GetValue(stats, (int)EntityStatType.Strength));
         }
     }
 }

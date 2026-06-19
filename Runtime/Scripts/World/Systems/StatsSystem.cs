@@ -55,7 +55,8 @@ namespace GameFramework.World
             stats.BaseStats[statType] = value;
         }
 
-        /// <summary>베이스 스탯에 delta를 더하고(없으면 0 기준) 새 베이스 값을 반환한다. 스탯 포인트 할당용.</summary>
+        /// <summary>베이스 스탯에 delta를 더하고(없으면 0 기준) 새 베이스 값을 반환한다. 스탯 포인트 할당용.
+        /// 가드 없음 — delta가 음수이면 베이스도 음수가 될 수 있다(호출자가 검증). 모디파이어는 건드리지 않는다.</summary>
         public float AddBase(Stats stats, int statType, float delta)
         {
             stats.BaseStats.TryGetValue(statType, out var current);
