@@ -10,5 +10,6 @@ namespace GameFramework.World
     {
         public Dictionary<int, float> BaseStats { get; } = new Dictionary<int, float>();
         public List<StatModifier> Modifiers { get; } = new List<StatModifier>();
+        public int UnspentPoints { get; set; }
     }
 }
