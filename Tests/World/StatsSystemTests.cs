@@ -172,5 +172,55 @@ namespace GameFramework.World.Tests
             // base 5+3=8, plus flat modifier 10 → GetValue 18
             Assert.AreEqual(18f, _system.GetValue(stats, (int)EntityStatType.Strength));
         }
+
+        [Test]
+        public void AddUnspent_accumulates()
+        {
+            var stats = new Stats();
+
+            _system.AddUnspent(stats, 3);
+            _system.AddUnspent(stats, 2);
+
+            Assert.AreEqual(5, stats.UnspentPoints);
+        }
+
+        [Test]
+        public void SetUnspent_overwrites()
+        {
+            var stats = new Stats();
+            _system.AddUnspent(stats, 3);
+
+            _system.SetUnspent(stats, 10);
+
+            Assert.AreEqual(10, stats.UnspentPoints);
+        }
+
+        [Test]
+        public void Allocate_with_points_spends_one_raises_base_and_returns_new_value()
+        {
+            var stats = new Stats();
+            _system.SetBase(stats, (int)EntityStatType.Strength, 5f);
+            _system.SetUnspent(stats, 2);
+
+            int result = _system.Allocate(stats, (int)EntityStatType.Strength);
+
+            Assert.AreEqual(6, result);
+            Assert.AreEqual(6f, _system.GetValue(stats, (int)EntityStatType.Strength));
+            Assert.AreEqual(1, stats.UnspentPoints);
+        }
+
+        [Test]
+        public void Allocate_with_zero_points_is_noop_and_returns_current()
+        {
+            var stats = new Stats();
+            _system.SetBase(stats, (int)EntityStatType.Strength, 5f);
+            _system.SetUnspent(stats, 0);
+
+            int result = _system.Allocate(stats, (int)EntityStatType.Strength);
+
+            Assert.AreEqual(5, result);
+            Assert.AreEqual(5f, _system.GetValue(stats, (int)EntityStatType.Strength));
+            Assert.AreEqual(0, stats.UnspentPoints);
+        }
     }
 }

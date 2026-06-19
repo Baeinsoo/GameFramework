@@ -64,5 +64,33 @@ namespace GameFramework.World
             stats.BaseStats[statType] = next;
             return next;
         }
+
+        /// <summary>미할당 스탯 포인트를 더한다(레벨업 보상 등). 가드 없음 — 음수면 감소(호출자 검증).</summary>
+        public void AddUnspent(Stats stats, int amount)
+        {
+            stats.UnspentPoints += amount;
+        }
+
+        /// <summary>미할당 스탯 포인트를 권위 값으로 덮어쓴다(스냅샷 적용).</summary>
+        public void SetUnspent(Stats stats, int value)
+        {
+            stats.UnspentPoints = value;
+        }
+
+        /// <summary>
+        /// 포인트가 있으면 1 소비하고 해당 스탯 베이스를 1 올린다(미설정 스탯은 0 기준 → 1, 원자적). 적용 후 스탯 최종값을 반환한다.
+        /// 포인트가 없으면 no-op으로 현재 값을 반환한다. StatsSystem은 noEngineReferences라 Mathf 대신 (int) 캐스트.
+        /// </summary>
+        public int Allocate(Stats stats, int statType)
+        {
+            if (stats.UnspentPoints <= 0)
+            {
+                return (int)GetValue(stats, statType);
+            }
+
+            stats.UnspentPoints--;
+            AddBase(stats, statType, 1);
+            return (int)GetValue(stats, statType);
+        }
     }
 }
