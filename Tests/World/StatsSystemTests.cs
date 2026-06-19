@@ -115,5 +115,62 @@ namespace GameFramework.World.Tests
             Assert.IsTrue(_system.RemoveModifiersBySourceId(stats, "buffA"));
             Assert.IsFalse(_system.RemoveModifiersBySourceId(stats, "nope"));
         }
+
+        [Test]
+        public void SetBase_sets_base_value_reflected_in_GetValue()
+        {
+            var stats = new Stats();
+
+            _system.SetBase(stats, (int)EntityStatType.Strength, 7f);
+
+            Assert.AreEqual(7f, _system.GetValue(stats, (int)EntityStatType.Strength));
+        }
+
+        [Test]
+        public void SetBase_overwrites_existing_base()
+        {
+            var stats = new Stats();
+            _system.SetBase(stats, (int)EntityStatType.Strength, 7f);
+
+            _system.SetBase(stats, (int)EntityStatType.Strength, 3f);
+
+            Assert.AreEqual(3f, _system.GetValue(stats, (int)EntityStatType.Strength));
+        }
+
+        [Test]
+        public void AddBase_from_unset_returns_delta()
+        {
+            var stats = new Stats();
+
+            float result = _system.AddBase(stats, (int)EntityStatType.Dexterity, 5f);
+
+            Assert.AreEqual(5f, result);
+            Assert.AreEqual(5f, _system.GetValue(stats, (int)EntityStatType.Dexterity));
+        }
+
+        [Test]
+        public void AddBase_accumulates_and_returns_new_value()
+        {
+            var stats = new Stats();
+            _system.SetBase(stats, (int)EntityStatType.Vitality, 10f);
+
+            float result = _system.AddBase(stats, (int)EntityStatType.Vitality, 1f);
+
+            Assert.AreEqual(11f, result);
+            Assert.AreEqual(11f, _system.GetValue(stats, (int)EntityStatType.Vitality));
+        }
+
+        [Test]
+        public void AddBase_preserves_modifiers_on_same_stat()
+        {
+            var stats = new Stats();
+            _system.SetBase(stats, (int)EntityStatType.Strength, 5f);
+            _system.AddModifier(stats, new StatModifier((int)EntityStatType.Strength, 10f, ModifierType.Flat, "buff"));
+
+            _system.AddBase(stats, (int)EntityStatType.Strength, 3f);
+
+            // base 5+3=8, plus flat modifier 10 → GetValue 18
+            Assert.AreEqual(18f, _system.GetValue(stats, (int)EntityStatType.Strength));
+        }
     }
 }
