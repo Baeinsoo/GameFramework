@@ -9,6 +9,7 @@ namespace GameFramework
     {
         IEntityManager entityManager { get; }
         ITickUpdater tickUpdater { get; }
+        INetworkTime networkTime { get; }
 
         void Run(long tick, double interval, double elapsedTime);
         void Stop();

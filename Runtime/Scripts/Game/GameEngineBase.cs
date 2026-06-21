@@ -11,6 +11,7 @@ namespace GameFramework
     {
         public IEntityManager entityManager { get; private set; }
         public ITickUpdater tickUpdater { get; private set; }
+        public INetworkTime networkTime { get; private set; }
 
         public bool initialized { get; protected set; }
 
@@ -21,6 +22,7 @@ namespace GameFramework
             tickUpdater = GetComponent<ITickUpdater>() ?? throw new ArgumentNullException(nameof(ITickUpdater));
             tickUpdater.onTick += OnTick;
             entityManager = GetComponent<IEntityManager>() ?? throw new ArgumentNullException(nameof(IEntityManager));
+            networkTime = CreateNetworkTime();   // 서버=null(override 안 함), 클라=MirrorNetworkTime. tickUpdater와 달리 null 허용.
 
             initialized = true;
         }
@@ -36,6 +38,7 @@ namespace GameFramework
             tickUpdater.onTick -= OnTick;
             tickUpdater = null;
             entityManager = null;
+            networkTime = null;
 
             initialized = false;
         }
@@ -101,5 +104,11 @@ namespace GameFramework
                 }
             }
         }
+
+        /// <summary>
+        /// 사이드별 네트워크 시간 소스를 생성한다. 기본 null(서버 — 자기 권위 시간, GameEngine.NetworkTime 미사용).
+        /// 클라가 override해 네트워크 동기 시간을 제공한다.
+        /// </summary>
+        protected virtual INetworkTime CreateNetworkTime() => null;
     }
 }
