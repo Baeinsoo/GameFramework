@@ -4,8 +4,10 @@ namespace GameFramework
     public readonly struct InputTimingSummary
     {
         public readonly double AvgD;
+        /// <summary>간격 내 가장 큰 d(가장 늦게/빠듯하게 도착한 입력). 클수록 prune 경계에 근접.</summary>
         public readonly int MaxD;
         public readonly int PruneCount;
+        /// <summary>유실로 누락된 입력 tick 총수(gap 이벤트 수가 아니라 누락 tick 합).</summary>
         public readonly int SeqGapCount;
         public readonly int SampleCount;
 

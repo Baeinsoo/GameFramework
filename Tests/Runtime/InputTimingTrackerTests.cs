@@ -16,7 +16,7 @@ namespace GameFramework.Tests
         }
 
         [Test]
-        public void Summarize_Arrivals_AveragesAndKeepsTightestMax()
+        public void Summarize_Arrivals_AveragesAndTracksMaxD()
         {
             var t = new InputTimingTracker();
             t.RecordArrival(-5);
@@ -40,6 +40,18 @@ namespace GameFramework.Tests
             Assert.AreEqual(2, s.SeqGapCount);
             Assert.AreEqual(0, s.SampleCount);
             Assert.IsTrue(s.HasActivity);
+        }
+
+        [Test]
+        public void Summarize_AfterReset_MaxDReflectsNewArrivalOnly()
+        {
+            var t = new InputTimingTracker();
+            t.RecordArrival(-10);
+            t.Summarize();              // 첫 간격: maxD=-10 후 int.MinValue로 reset
+            t.RecordArrival(-3);
+            var s = t.Summarize();      // 둘째 간격: maxD는 -3이어야(이전 -10 누수 없음)
+            Assert.AreEqual(-3, s.MaxD);
+            Assert.AreEqual(-3.0, s.AvgD, 1e-9);
         }
 
         [Test]
