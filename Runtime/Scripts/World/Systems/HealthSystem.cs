@@ -26,14 +26,6 @@ namespace GameFramework.World
         }
 
         /// <summary>
-        /// 데미지 결과 이벤트를 그대로 Health에 반영한다. 결정/계산/가드 없음 (Application 메서드).
-        /// </summary>
-        public void ApplyDamageDealt(Health health, DamageDealtEvent e)
-        {
-            health.Current = e.remaining;
-        }
-
-        /// <summary>
         /// 권위 스냅샷 등으로 Max/Current를 통째로 덮어쓴다. 결정/계산/가드 없음 (Application 메서드).
         /// Current는 [0, Max]로 클램프해 데이터 무결성만 보장한다.
         /// </summary>
