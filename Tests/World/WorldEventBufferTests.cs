@@ -18,7 +18,7 @@ namespace GameFramework.World.Tests
         public void Append_increases_Count_and_appears_in_snapshot()
         {
             var buffer = new WorldEventBuffer();
-            var e = new DamageDealtEvent("1", "2", 50, false, false, 50, false);
+            var e = new DamageDealtEvent("1", "2", 50, false, false);
 
             buffer.Append(e);
 
@@ -31,9 +31,9 @@ namespace GameFramework.World.Tests
         public void Multiple_Appends_preserve_insertion_order()
         {
             var buffer = new WorldEventBuffer();
-            var a = new DamageDealtEvent("1", "2", 10, false, false, 90, false);
+            var a = new DamageDealtEvent("1", "2", 10, false, false);
             var b = new DeathEvent("3", "2");
-            var c = new DamageDealtEvent("3", "2", 20, false, false, 0, true);
+            var c = new DamageDealtEvent("3", "2", 20, false, false);
 
             buffer.Append(a);
             buffer.Append(b);
@@ -49,7 +49,7 @@ namespace GameFramework.World.Tests
         public void Clear_empties_the_buffer()
         {
             var buffer = new WorldEventBuffer();
-            buffer.Append(new DamageDealtEvent("1", "2", 50, false, false, 50, false));
+            buffer.Append(new DamageDealtEvent("1", "2", 50, false, false));
             buffer.Append(new DeathEvent("1", "2"));
 
             buffer.Clear();
@@ -64,7 +64,7 @@ namespace GameFramework.World.Tests
             var buffer = new WorldEventBuffer();
             buffer.Append(new DeathEvent("1", "2"));
             buffer.Clear();
-            var e = new DamageDealtEvent("4", "5", 30, false, false, 70, false);
+            var e = new DamageDealtEvent("4", "5", 30, false, false);
 
             buffer.Append(e);
 
