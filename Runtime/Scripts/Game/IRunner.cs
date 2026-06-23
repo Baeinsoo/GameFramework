@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IGameEngine : IInitializableAsync, IDeinitializableAsync
+    public interface IRunner : IInitializableAsync, IDeinitializableAsync
     {
         IEntityManager entityManager { get; }
         ITickUpdater tickUpdater { get; }
@@ -13,7 +13,7 @@ namespace GameFramework
 
         void Run(long tick, double interval, double elapsedTime);
         void Stop();
-        void UpdateEngine();
+        void UpdateRunner();
 
         void AddListener(object listener);
         void RemoveListener(object listener);
