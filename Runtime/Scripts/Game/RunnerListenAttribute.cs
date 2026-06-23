@@ -4,11 +4,11 @@ using UnityEngine;
 namespace GameFramework
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class GameEngineListenAttribute : Attribute
+    public class RunnerListenAttribute : Attribute
     {
         public Type type { get; }
 
-        public GameEngineListenAttribute(Type type)
+        public RunnerListenAttribute(Type type)
         {
             this.type = type;
         }

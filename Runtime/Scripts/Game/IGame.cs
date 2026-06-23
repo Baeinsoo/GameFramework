@@ -10,7 +10,7 @@ namespace GameFramework
         event Action<IGameState> onGameStateChanged;
 
         IGameState gameState { get; }
-        IGameEngine gameEngine { get; }
+        IRunner runner { get; }
 
         void Run(long tick, double interval, double elapsedTime);
         void Stop();

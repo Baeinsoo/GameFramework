@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public abstract class GameEngineBase : MonoBehaviour, IGameEngine
+    public abstract class RunnerBase : MonoBehaviour, IRunner
     {
         public IEntityManager entityManager { get; private set; }
         public ITickUpdater tickUpdater { get; private set; }
@@ -30,9 +30,9 @@ namespace GameFramework
         public virtual async Task DeinitializeAsync()
         {
             // teardown 시점에 정적 current를 정리한다 (Stop()은 일시정지라 current를 유지).
-            if (GameEngine.current == this)
+            if (Runner.current == this)
             {
-                GameEngine.current = null;
+                Runner.current = null;
             }
 
             tickUpdater.onTick -= OnTick;
@@ -45,23 +45,23 @@ namespace GameFramework
 
         public void Run(long tick, double interval, double elapsedTime)
         {
-            GameEngine.current = this;
+            Runner.current = this;
 
             tickUpdater.Run(tick, interval, elapsedTime);
         }
 
         public void Stop()
         {
-            // 일시정지: 틱만 멈춘다. 정적 current는 유지(정지 중에도 GameEngine.Time 등이 유효해야 함).
+            // 일시정지: 틱만 멈춘다. 정적 current는 유지(정지 중에도 Runner.Time 등이 유효해야 함).
             tickUpdater.Stop();
         }
 
         private void OnTick(long tick)
         {
-            UpdateEngine();
+            UpdateRunner();
         }
 
-        public abstract void UpdateEngine();
+        public abstract void UpdateRunner();
 
         public virtual void AddListener(object listener)
         {
@@ -69,7 +69,7 @@ namespace GameFramework
 
             foreach (var method in methods.OrEmpty())
             {
-                var attribute = method.GetCustomAttribute<GameEngineListenAttribute>();
+                var attribute = method.GetCustomAttribute<RunnerListenAttribute>();
                 if (attribute == null)
                 {
                     continue;
@@ -106,7 +106,7 @@ namespace GameFramework
         }
 
         /// <summary>
-        /// 사이드별 네트워크 시간 소스를 생성한다. 기본 null(서버 — 자기 권위 시간, GameEngine.NetworkTime 미사용).
+        /// 사이드별 네트워크 시간 소스를 생성한다. 기본 null(서버 — 자기 권위 시간, Runner.NetworkTime 미사용).
         /// 클라가 override해 네트워크 동기 시간을 제공한다.
         /// </summary>
         protected virtual INetworkTime CreateNetworkTime() => null;
