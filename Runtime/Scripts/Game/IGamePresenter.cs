@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GameFramework
 {
-    public interface IGamePresenter<T> where T : IGame 
+    public interface IGamePresenter<T> where T : IRunner
     {
         T game { get; }
     }

@@ -9,6 +9,25 @@ namespace GameFramework
 {
     public abstract class RunnerBase : MonoBehaviour, IRunner
     {
+        public event Action<IGameState> onGameStateChanged;
+
+        private IGameState _gameState;
+        public IGameState gameState
+        {
+            get => _gameState;
+            // 구체 상태 값은 use-side(LOP)가 정의하고 전이한다. 베이스는 마커 보관·발화만 한다.
+            protected set
+            {
+                if (_gameState == value)
+                {
+                    return;
+                }
+
+                _gameState = value;
+                onGameStateChanged?.Invoke(value);
+            }
+        }
+
         public IEntityManager entityManager { get; private set; }
         public ITickUpdater tickUpdater { get; private set; }
         public INetworkTime networkTime { get; private set; }
@@ -43,14 +62,14 @@ namespace GameFramework
             initialized = false;
         }
 
-        public void Run(long tick, double interval, double elapsedTime)
+        public virtual void Run(long tick, double interval, double elapsedTime)
         {
             Runner.current = this;
 
             tickUpdater.Run(tick, interval, elapsedTime);
         }
 
-        public void Stop()
+        public virtual void Stop()
         {
             // 일시정지: 틱만 멈춘다. 정적 current는 유지(정지 중에도 Runner.Time 등이 유효해야 함).
             tickUpdater.Stop();
