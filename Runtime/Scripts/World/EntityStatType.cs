@@ -10,5 +10,6 @@ namespace GameFramework.World
         Dexterity,
         Intelligence,
         Vitality,
+        MoveSpeed,
     }
 }
