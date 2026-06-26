@@ -5,6 +5,17 @@ namespace GameFramework.World
     /// <summary><see cref="Mana"/> 데이터를 변경하는 로직. 상태 보유 없음(순수 함수적).</summary>
     public class ManaSystem
     {
+        /// <summary>자원을 소비한다. 잔량이 부족하면 차감 없이 false. 성공 시 차감하고 true. (Generation 결정 메서드)</summary>
+        public bool Spend(Mana mana, int amount)
+        {
+            if (amount < 0 || mana.Current < amount)
+            {
+                return false;
+            }
+            mana.Current -= amount;
+            return true;
+        }
+
         /// <summary>
         /// 권위 스냅샷 등으로 Max/Current를 통째로 덮어쓴다. 결정/계산/가드 없음 (Application 메서드).
         /// Current는 [0, Max]로 클램프해 데이터 무결성만 보장한다.
