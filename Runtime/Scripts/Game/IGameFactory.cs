@@ -4,7 +4,7 @@ namespace GameFramework
 {
     public interface IGameFactory
     {
-        Task<IGame> CreateAsync();
+        Task<IRunner> CreateAsync();
         Task DestroyAsync();
     }
 }

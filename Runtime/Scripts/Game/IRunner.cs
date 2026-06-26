@@ -7,6 +7,10 @@ namespace GameFramework
 {
     public interface IRunner : IInitializableAsync, IDeinitializableAsync
     {
+        event Action<IGameState> onGameStateChanged;
+
+        IGameState gameState { get; }
+
         IEntityManager entityManager { get; }
         ITickUpdater tickUpdater { get; }
         INetworkTime networkTime { get; }

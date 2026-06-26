@@ -6,7 +6,7 @@ namespace GameFramework
 {
     public interface IRoom : IInitializableAsync, IDeinitializableAsync
     {
-        IGame game { get; }
+        IRunner runner { get; }
 
         Task StartGameAsync();
     }
