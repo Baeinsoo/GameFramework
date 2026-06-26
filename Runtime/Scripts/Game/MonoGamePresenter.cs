@@ -6,6 +6,6 @@ namespace GameFramework
 {
     public class MonoGamePresenter<T> : MonoBehaviour, IGamePresenter<T> where T : IRunner
     {
-        public T game { get; protected set; }
+        public T runner { get; protected set; }
     }
 }

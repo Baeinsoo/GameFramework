@@ -6,6 +6,6 @@ namespace GameFramework
 {
     public interface IGamePresenter<T> where T : IRunner
     {
-        T game { get; }
+        T runner { get; }
     }
 }
