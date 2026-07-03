@@ -11,5 +11,6 @@ namespace GameFramework.World
         Intelligence,
         Vitality,
         MoveSpeed,
+        JumpPower,
     }
 }
