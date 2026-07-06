@@ -4,54 +4,70 @@ using System.Numerics;
 namespace GameFramework.Netcode
 {
     /// <summary>
-    /// 서버 보정 후 렌더 위치를 target으로 부드럽게 이징한다(타깃으로만 수렴 — 오버슈트 없음).
-    /// 보정 창 동안만 지수 이징, 평소엔 target을 정확히 추종(랙 0). 시뮬(true)과 분리된 render 스무딩 —
-    /// Unreal NetworkSmoothingMode(Exponential) 대응. 순수(System.Numerics) — 프레임독립·유닛 테스트 가능.
+    /// 서버 보정을 '보이는 위치'에서만 부드럽게 흡수한다. 시뮬(권위) 위치는 하드 보정 그대로 두고,
+    /// 렌더 위치가 (보이던 위치 − 새 권위 위치)만큼의 오차 offset을 잡은 뒤 0으로 감쇠시켜 새 위치로
+    /// 수렴한다 — Unreal MeshTranslationOffset / Fiedler render=simPos+errorOffset 대응.
+    /// 순수(System.Numerics) — 프레임독립·유닛 테스트 가능.
     /// </summary>
     public class RenderCorrectionSmoother
     {
-        private readonly float _smoothingTime;
-        private Vector3 _current;
-        private bool _hasCurrent;
-        private float _windowRemaining;
+        private readonly float _tau;             // 감쇠 시간상수(초) — 클수록 천천히 녹음
+        private readonly float _minCorrection;   // 이보다 작은 보정은 무시(즉시 채택)
+        private readonly float _teleport;        // 이보다 큰 보정은 스무딩 안 함(즉시 스냅)
 
-        public RenderCorrectionSmoother(float smoothingTime)
+        private Vector3 _offset;                 // 렌더 = simPos + _offset
+        private Vector3 _lastTarget;             // 마지막으로 낸 렌더 위치(보정 seed 기준)
+        private bool _hasTarget;
+
+        public RenderCorrectionSmoother(float tau, float minCorrection, float teleport)
         {
-            _smoothingTime = smoothingTime;
+            _tau = tau;
+            _minCorrection = minCorrection;
+            _teleport = teleport;
         }
 
-        /// <summary>보정 발생 알림 — 이징 창을 연다(초). 평소엔 호출 안 됨 → 정확 추종.</summary>
-        public void MarkCorrection(float window)
+        /// <summary>이번 틱 렌더 위치 = simPos + offset. 낸 값을 seed 기준으로 캐시한다.</summary>
+        public Vector3 Target(Vector3 simPos)
         {
-            _windowRemaining = window;
+            _lastTarget = simPos + _offset;
+            _hasTarget = true;
+            return _lastTarget;
         }
 
-        /// <summary>이번 프레임 렌더 위치. 창 동안 target으로 지수 이징, 평소 target 그대로.</summary>
-        public Vector3 Smooth(Vector3 target, float deltaTime)
+        /// <summary>
+        /// 서버 보정 발생. 보정 크기가 밴드 안이면 렌더를 직전에 보이던 자리에 붙들어 두는 offset을
+        /// 잡고(이후 감쇠로 새 위치에 수렴), 너무 작거나(무시) 너무 크면(리스폰 등) offset을 0으로 두어
+        /// 렌더가 즉시 새 위치를 따르게 한다.
+        /// </summary>
+        public void OnCorrection(Vector3 oldSimPos, Vector3 newSimPos)
         {
-            if (!_hasCurrent)
+            if (!_hasTarget)
             {
-                _current = target;
-                _hasCurrent = true;
-                return _current;
+                _offset = Vector3.Zero;
+                return;
             }
-            if (_windowRemaining > 0f)
+            float mag = Vector3.Distance(oldSimPos, newSimPos);
+            if (mag < _minCorrection || mag > _teleport)
             {
-                _windowRemaining -= deltaTime;
-                float a = 1f - MathF.Exp(-deltaTime / _smoothingTime);
-                _current = Vector3.Lerp(_current, target, a);
+                _offset = Vector3.Zero;
             }
             else
             {
-                _current = target;
+                _offset = _lastTarget - newSimPos;
             }
-            return _current;
+        }
+
+        /// <summary>offset을 0으로 한 틱만큼 지수 감쇠(프레임독립).</summary>
+        public void DecayTick(float deltaTime)
+        {
+            _offset *= MathF.Exp(-deltaTime / _tau);
         }
 
         public void Reset()
         {
-            _hasCurrent = false;
-            _windowRemaining = 0f;
+            _offset = Vector3.Zero;
+            _lastTarget = Vector3.Zero;
+            _hasTarget = false;
         }
     }
 }
