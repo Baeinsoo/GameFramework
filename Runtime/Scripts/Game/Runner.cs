@@ -35,9 +35,6 @@ namespace GameFramework
             public static double predictedTime => Runner.current.networkTime.PredictedTime;
 
             public static double rtt => Runner.current.networkTime.Rtt;
-
-            /// <summary> 원격 보간 back-time = RTT/2 (소비자가 clamp). </summary>
-            public static double remoteBackTime => Runner.current.networkTime.RemoteBackTime();
         }
     }
 }
