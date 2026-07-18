@@ -7,7 +7,7 @@ namespace GameFramework
     public interface IEntityCreator { }
 
     public interface IEntityCreator<out TEntity, in TEntityCreationData> : IEntityCreator
-        where TEntity : IEntity
+        where TEntity : MonoBehaviour
         where TEntityCreationData : IEntityCreationData
     {
         TEntity Create(TEntityCreationData data);

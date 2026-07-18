@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace GameFramework
 {
@@ -29,7 +30,7 @@ namespace GameFramework
         }
 
         public TEntity CreateEntity<TEntity, TEntityCreationData>(TEntityCreationData creationData)
-            where TEntity : IEntity
+            where TEntity : MonoBehaviour
             where TEntityCreationData : struct, IEntityCreationData
         {
             var key = (typeof(TEntity), typeof(TEntityCreationData));

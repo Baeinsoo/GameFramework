@@ -7,24 +7,24 @@ namespace GameFramework
     public interface IEntityManager
     {
         TEntity CreateEntity<TEntity, TEntityCreationData>(TEntityCreationData creationData)
-            where TEntity : IEntity
+            where TEntity : MonoBehaviour
             where TEntityCreationData : struct, IEntityCreationData;
 
-        IEntity GetEntity(string entityId);
-        TEntity GetEntity<TEntity>(string entityId) where TEntity : IEntity;
+        MonoBehaviour GetEntity(string entityId);
+        TEntity GetEntity<TEntity>(string entityId) where TEntity : MonoBehaviour;
 
-        bool TryGetEntity(string entityId, out IEntity entity);
-        bool TryGetEntity<TEntity>(string entityId, out TEntity entity) where TEntity : IEntity;
+        bool TryGetEntity(string entityId, out MonoBehaviour entity);
+        bool TryGetEntity<TEntity>(string entityId, out TEntity entity) where TEntity : MonoBehaviour;
 
-        IEnumerable<IEntity> GetEntities();
-        IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : IEntity;
+        IEnumerable<MonoBehaviour> GetEntities();
+        IEnumerable<TEntity> GetEntities<TEntity>() where TEntity : MonoBehaviour;
 
         void UpdateEntities();
 
         void DeleteEntityById(string entityId);
 
         string GetUserIdByEntityId(string entityId);
-        TEntity GetEntityByUserId<TEntity>(string userId) where TEntity : IEntity;
+        TEntity GetEntityByUserId<TEntity>(string userId) where TEntity : MonoBehaviour;
 
         string GenerateEntityId();
     }
