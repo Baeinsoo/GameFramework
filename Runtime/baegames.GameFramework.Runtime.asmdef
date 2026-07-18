@@ -2,7 +2,8 @@
     "name": "baegames.GameFramework.Runtime",
     "rootNamespace": "",
     "references": [
-        "VContainer"
+        "VContainer",
+        "baegames.GameFramework.World"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
