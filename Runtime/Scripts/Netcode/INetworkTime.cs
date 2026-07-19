@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Netcode
 {
     /// <summary>
     /// 네트워크 동기 시간 소스. 양쪽(클·서) 공통 인터페이스.
