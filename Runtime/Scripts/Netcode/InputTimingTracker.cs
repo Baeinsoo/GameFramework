@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Netcode
 {
     /// <summary>
     /// 서버측 per-client 입력 도착 타이밍 누적기. 한 피드백 간격 동안 도착 마진 d 샘플과

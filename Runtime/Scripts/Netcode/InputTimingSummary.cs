@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Netcode
 {
     /// <summary>서버가 측정한 클라 입력 도착 타이밍 한 간격 요약. d = 도착 마진(serverTick − inputTick).</summary>
     public readonly struct InputTimingSummary

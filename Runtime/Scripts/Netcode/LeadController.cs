@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Netcode
 {
     /// <summary>
     /// 서버 입력 타이밍 피드백(도착 마진 d + 실패)으로 클라 lead(AheadMargin, 초)를 조정하는 정책.

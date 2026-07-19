@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Netcode
 {
     /// <summary>
     /// 클럭(시간 값)을 타깃 시간으로 rate time-dilation으로 수렴시킨다. 값을 직접 대입(smoothing)하지 않고
