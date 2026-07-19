@@ -28,7 +28,6 @@ namespace GameFramework
             }
         }
 
-        public IEntityManager entityManager { get; private set; }
         public ITickUpdater tickUpdater { get; private set; }
         public INetworkTime networkTime { get; private set; }
 
@@ -40,7 +39,6 @@ namespace GameFramework
         {
             tickUpdater = GetComponent<ITickUpdater>() ?? throw new ArgumentNullException(nameof(ITickUpdater));
             tickUpdater.onTick += OnTick;
-            entityManager = GetComponent<IEntityManager>() ?? throw new ArgumentNullException(nameof(IEntityManager));
             networkTime = CreateNetworkTime();   // 서버=null(override 안 함), 클라=MirrorNetworkTime. tickUpdater와 달리 null 허용.
 
             initialized = true;
@@ -56,7 +54,6 @@ namespace GameFramework
 
             tickUpdater.onTick -= OnTick;
             tickUpdater = null;
-            entityManager = null;
             networkTime = null;
 
             initialized = false;
