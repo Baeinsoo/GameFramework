@@ -2,7 +2,7 @@ using System;
 
 namespace GameFramework
 {
-    public interface IState<TEvent> where TEvent : Enum
+    public interface IState<TEvent> where TEvent : struct, Enum
     {
         IStateMachine<TEvent> FSM { get; set; }
 
