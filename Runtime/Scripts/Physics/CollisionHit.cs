@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameFramework
+namespace GameFramework.Physics
 {
     /// <summary>충돌 쿼리 결과(엔진 RaycastHit을 포트 경계에서 격리한 얇은 값 타입).</summary>
     public readonly struct CollisionHit

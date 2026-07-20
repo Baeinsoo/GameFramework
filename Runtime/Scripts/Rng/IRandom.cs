@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Rng
 {
     /// <summary>
     /// 난수 굴림 포트. 시뮬레이션이 구체 RNG(UnityEngine.Random 등)에 직결되지 않도록 주입한다.

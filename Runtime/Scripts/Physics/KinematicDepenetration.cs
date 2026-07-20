@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameFramework
+namespace GameFramework.Physics
 {
     /// <summary>
     /// 키네마틱 캡슐이 겹친 지오메트리 밖으로 나갈 push-out 벡터를 계산한다(자기 콜라이더 제외).
@@ -23,7 +23,7 @@ namespace GameFramework
             Vector3 p1 = center - up * halfSpan;
             Vector3 p2 = center + up * halfSpan;
 
-            Collider[] overlaps = Physics.OverlapCapsule(p1, p2, radius, layerMask, QueryTriggerInteraction.Ignore);
+            Collider[] overlaps = UnityEngine.Physics.OverlapCapsule(p1, p2, radius, layerMask, QueryTriggerInteraction.Ignore);
             Vector3 total = Vector3.zero;
             foreach (var other in overlaps)
             {
@@ -31,7 +31,7 @@ namespace GameFramework
                 {
                     continue;   // 자기 콜라이더 제외
                 }
-                if (Physics.ComputePenetration(own, ownPos, ownRot,
+                if (UnityEngine.Physics.ComputePenetration(own, ownPos, ownRot,
                         other, other.transform.position, other.transform.rotation,
                         out Vector3 dir, out float dist))
                 {
