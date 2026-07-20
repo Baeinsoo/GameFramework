@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace GameFramework
 {
-    public abstract class State<TEvent> : IState<TEvent> where TEvent : Enum
+    public abstract class State<TEvent> : IState<TEvent> where TEvent : struct, Enum
     {
         public IStateMachine<TEvent> FSM { get; set; }
 
@@ -29,7 +29,7 @@ namespace GameFramework
         {
             try
             {
-                await OnExecuteAsync(ct);
+                Fire(await OnExecuteAsync(ct), ct);
             }
             catch (OperationCanceledException)
             {
@@ -43,17 +43,32 @@ namespace GameFramework
                     return;
                 }
 
-                OnError(e);
+                Fire(OnError(e), ct);
             }
+        }
+
+        //  상태가 반환한 이벤트를 대신 발행. 취소됐으면(이미 다른 상태) 발행하지 않는다.
+        //  이 취소 체크가 한 곳에 있어, 상태는 Fire도 취소 확인도 직접 하지 않는다.
+        private void Fire(TEvent? ev, CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested || ev.HasValue == false)
+            {
+                return;
+            }
+
+            FSM.Fire(ev.Value);
         }
 
         public abstract IState<TEvent> GetNextState(TEvent ev);
 
         protected virtual void OnEnter() { }
         protected virtual void OnExit() { }
-        protected virtual Task OnExecuteAsync(CancellationToken ct) => Task.CompletedTask;
 
-        //  OnExecuteAsync에서 처리 못한 예외가 났을 때 호출. 어디로 갈지는 상태가 정한다.
-        protected virtual void OnError(Exception e) { }
+        //  상태의 비동기 작업. 다음 이벤트를 반환하면 base가 발행한다(직접 FSM.Fire 하지 않음).
+        //  전이할 이벤트가 없으면 null.
+        protected virtual Task<TEvent?> OnExecuteAsync(CancellationToken ct) => Task.FromResult<TEvent?>(null);
+
+        //  미처리 예외 시 회복 이벤트를 반환(없으면 null). 발행은 base가 한다.
+        protected virtual TEvent? OnError(Exception e) => null;
     }
 }

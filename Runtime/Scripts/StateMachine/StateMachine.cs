@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GameFramework
 {
-    public abstract class StateMachine<TEvent> : IStateMachine<TEvent> where TEvent : Enum
+    public abstract class StateMachine<TEvent> : IStateMachine<TEvent> where TEvent : struct, Enum
     {
         public event Action<IState<TEvent>, IState<TEvent>> onStateChange;
 
