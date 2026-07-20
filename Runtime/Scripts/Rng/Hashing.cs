@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Rng
 {
     /// <summary>결정론 씨앗 조립용 순수 해시 유틸(FNV-1a 64 + 폴딩 combine). 플랫폼 독립 정수 연산.</summary>
     public static class Hashing

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameFramework
+namespace GameFramework.Physics
 {
     /// <summary>
     /// Unity 내장 물리(PhysX)로 <see cref="IPhysicsSimulator"/>를 구현하는 어댑터.
@@ -8,6 +8,6 @@ namespace GameFramework
     /// </summary>
     public sealed class UnityPhysicsSimulator : IPhysicsSimulator
     {
-        public void Simulate(float deltaTime) => Physics.Simulate(deltaTime);
+        public void Simulate(float deltaTime) => UnityEngine.Physics.Simulate(deltaTime);
     }
 }

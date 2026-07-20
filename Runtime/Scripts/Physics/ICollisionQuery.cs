@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameFramework
+namespace GameFramework.Physics
 {
     /// <summary>
     /// 물리 충돌 쿼리 포트. 캡슐을 쓸어(sweep) 첫 충돌을 찾는다. 엔진 물리(PhysX)에 직결되지

@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Physics
 {
     /// <summary>
     /// 범위(구) 안에 겹치는 엔티티들의 id를 반환하는 오버랩 쿼리 포트.

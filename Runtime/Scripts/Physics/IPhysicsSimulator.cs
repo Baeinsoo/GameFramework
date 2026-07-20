@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Physics
 {
     /// <summary>
     /// 물리 시뮬레이션 한 스텝을 구동하는 포트 추상. 엔진 본체가 구체 물리 엔진(PhysX 등)에

@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Rng
 {
     /// <summary>
     /// 씨앗 하나로 재현 가능한 결정론적 난수 스트림(SplitMix64). value 타입 — 이벤트별로
