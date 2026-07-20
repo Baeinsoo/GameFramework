@@ -33,7 +33,17 @@ namespace GameFramework
             }
             catch (OperationCanceledException)
             {
-                //  State exited; expected on cancellation.
+                //  상태를 빠져나가며 취소됨 — 정상.
+            }
+            catch (Exception e)
+            {
+                //  이미 다른 상태로 넘어간 뒤 뒤늦게 터진 예외는 무시.
+                if (ct.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                OnError(e);
             }
         }
 
@@ -42,5 +52,8 @@ namespace GameFramework
         protected virtual void OnEnter() { }
         protected virtual void OnExit() { }
         protected virtual Task OnExecuteAsync(CancellationToken ct) => Task.CompletedTask;
+
+        //  OnExecuteAsync에서 처리 못한 예외가 났을 때 호출. 어디로 갈지는 상태가 정한다.
+        protected virtual void OnError(Exception e) { }
     }
 }
