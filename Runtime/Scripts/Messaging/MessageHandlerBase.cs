@@ -13,8 +13,10 @@ namespace GameFramework
 
         void VContainer.Unity.IInitializable.Initialize() => Subscribe();
 
-        // 구독 외 추가 teardown이 필요한 핸들러(예: 서버 GameInfoMessageHandler의 runner 리스너 해제)는
-        // 이 메서드를 override하고 base.Dispose()를 먼저 호출한다.
+        /// <summary>
+        /// Track된 모든 구독을 해제한다. 구독 외 추가 teardown이 필요한 핸들러(예: 서버
+        /// GameInfoMessageHandler의 runner 리스너 해제)는 이 메서드를 override하고 base.Dispose()를 먼저 호출한다.
+        /// </summary>
         public virtual void Dispose()
         {
             foreach (var s in subscriptions) s.Dispose();
