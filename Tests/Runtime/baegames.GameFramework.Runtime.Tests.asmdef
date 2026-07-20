@@ -3,6 +3,8 @@
     "rootNamespace": "GameFramework.Tests",
     "references": [
         "baegames.GameFramework.Runtime",
+        "baegames.GameFramework.World",
+        "VContainer",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

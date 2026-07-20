@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GameFramework.Netcode;
 
 namespace GameFramework
 {
@@ -11,7 +12,6 @@ namespace GameFramework
 
         IGameState gameState { get; }
 
-        IEntityManager entityManager { get; }
         ITickUpdater tickUpdater { get; }
         INetworkTime networkTime { get; }
 

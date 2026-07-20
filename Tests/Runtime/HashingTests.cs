@@ -1,3 +1,4 @@
+using GameFramework.Rng;
 using NUnit.Framework;
 
 namespace GameFramework.Tests
