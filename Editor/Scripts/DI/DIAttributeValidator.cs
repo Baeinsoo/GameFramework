@@ -13,8 +13,8 @@ namespace GameFramework.Editor
         {
             Type[] attributeTypes = new Type[]
             {
-                typeof(DIGameObjectAttribute),
-                typeof(DIMonoBehaviourAttribute),
+                typeof(SceneInjectGameObjectAttribute),
+                typeof(SceneInjectMonoBehaviourAttribute),
             };
 
             foreach (var attributeType in attributeTypes)
