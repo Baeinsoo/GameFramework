@@ -6,24 +6,24 @@ using UnityEditor;
 
 namespace GameFramework.Editor
 {
-    public static class DIAttributeValidator
+    public static class SceneInjectAttributeValidator
     {
         [InitializeOnLoadMethod]
         static void ValidateAttributes()
         {
             Type[] attributeTypes = new Type[]
             {
-                typeof(DIGameObjectAttribute),
-                typeof(DIMonoBehaviourAttribute),
+                typeof(SceneInjectGameObjectAttribute),
+                typeof(SceneInjectMonoBehaviourAttribute),
             };
 
             foreach (var attributeType in attributeTypes)
             {
-                ValidateDIAttribute(attributeType);
+                ValidateSceneInjectAttribute(attributeType);
             }
         }
 
-        private static void ValidateDIAttribute(Type attributeType)
+        private static void ValidateSceneInjectAttribute(Type attributeType)
         {
             var invalidTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes())
