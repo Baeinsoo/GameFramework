@@ -8,9 +8,9 @@ namespace GameFramework
 {
     public interface IRunner : IInitializableAsync, IDeinitializableAsync
     {
-        event Action<IGameState> onGameStateChanged;
+        event Action<RunnerState> onGameStateChanged;
 
-        IGameState gameState { get; }
+        RunnerState gameState { get; }
 
         ITickUpdater tickUpdater { get; }
         INetworkTime networkTime { get; }

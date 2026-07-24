@@ -10,10 +10,10 @@ namespace GameFramework
 {
     public abstract class RunnerBase : MonoBehaviour, IRunner
     {
-        public event Action<IGameState> onGameStateChanged;
+        public event Action<RunnerState> onGameStateChanged;
 
-        private IGameState _gameState;
-        public IGameState gameState
+        private RunnerState _gameState;
+        public RunnerState gameState
         {
             get => _gameState;
             // 구체 상태 값은 use-side(LOP)가 정의하고 전이한다. 베이스는 마커 보관·발화만 한다.
