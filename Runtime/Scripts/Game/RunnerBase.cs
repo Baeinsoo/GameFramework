@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
 using GameFramework.Netcode;
@@ -34,7 +33,40 @@ namespace GameFramework
 
         public bool initialized { get; protected set; }
 
-        private Dictionary<Type, Dictionary<object, Action>> listenerMap = new Dictionary<Type, Dictionary<object, Action>>();
+        private readonly Dictionary<Type, List<ITickSystem>> _tickSystems = new Dictionary<Type, List<ITickSystem>>();
+
+        public void RegisterSystem<TPhase>(ITickSystem system)
+        {
+            var key = typeof(TPhase);
+            if (_tickSystems.TryGetValue(key, out var list) == false)
+            {
+                list = new List<ITickSystem>();
+                _tickSystems[key] = list;
+            }
+            list.Add(system);
+        }
+
+        public void UnregisterSystem(ITickSystem system)
+        {
+            foreach (var list in _tickSystems.Values)
+            {
+                list.Remove(system);
+            }
+        }
+
+        // 페이즈에 등록된 시스템을 실행. 역방향 순회 = Tick 중 자기 해제(엔티티 사망→Cleanup)해도 안전.
+        // 페이즈 내 순서엔 의존하지 않는다(각 페이즈 소비자 ≤1종 또는 순서 무관 AI).
+        protected void RunPhase<TPhase>(long tick, float deltaTime)
+        {
+            if (_tickSystems.TryGetValue(typeof(TPhase), out var list) == false)
+            {
+                return;
+            }
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                list[i].Tick(tick, deltaTime);
+            }
+        }
 
         public virtual async Task InitializeAsync()
         {
@@ -70,47 +102,5 @@ namespace GameFramework
         }
 
         public abstract void UpdateRunner();
-
-        public virtual void AddListener(object listener)
-        {
-            var methods = listener.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
-            foreach (var method in methods.OrEmpty())
-            {
-                var attribute = method.GetCustomAttribute<RunnerListenAttribute>();
-                if (attribute == null)
-                {
-                    continue;
-                }
-
-                if (listenerMap.TryGetValue(attribute.type, out var listeners) == false)
-                {
-                    listeners = new Dictionary<object, Action>();
-                    listenerMap[attribute.type] = listeners;
-                }
-
-                Action action = (Action)Delegate.CreateDelegate(typeof(Action), listener, method);
-                listeners[listener] = action;
-            }
-        }
-
-        public virtual void RemoveListener(object listener)
-        {
-            foreach (var listeners in listenerMap.Values)
-            {
-                listeners.Remove(listener);
-            }
-        }
-
-        public void DispatchEvent<T>()
-        {
-            if (listenerMap.TryGetValue(typeof(T), out var listeners))
-            {
-                foreach (var action in listeners.Values)
-                {
-                    action.Invoke();
-                }
-            }
-        }
     }
 }
