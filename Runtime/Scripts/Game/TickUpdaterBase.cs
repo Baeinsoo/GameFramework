@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GameFramework
@@ -8,6 +7,9 @@ namespace GameFramework
     public class TickUpdaterBase : MonoBehaviour, ITickUpdater
     {
         // 프레임당 캐치업 상한. 50Hz 기준 최대 160ms. 초과분은 다음 프레임으로 이월.
+        // 지속적으로 프레임이 느린(과부하) 호스트에선 틱 시계가 실시간보다 계속 뒤처진다 —
+        // "멈춤(freeze)"을 "시간 뒤처짐"으로 맞바꾼 의도된 완만한 열화다. 뒤처짐을 앞으로
+        // 건너뛰는 snap-forward는 Stage④(reconciliation) 몫이라 여기선 하지 않는다.
         private const int MaxTicksPerFrame = 8;
 
         public event Action<long> onTick;
