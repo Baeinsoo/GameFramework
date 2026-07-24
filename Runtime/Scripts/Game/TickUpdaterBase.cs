@@ -27,6 +27,9 @@ namespace GameFramework
             }
         }
 
+        // 이전 static Runner.Time.deltaTime과 동일: 첫 틱(0)엔 0, 이후엔 고정 간격.
+        public double deltaTime => tick == 0 ? 0 : interval;
+
         private Coroutine loop;
         private bool loggedCatchUpWarning;
 

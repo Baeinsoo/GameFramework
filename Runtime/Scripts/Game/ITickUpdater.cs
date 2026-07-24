@@ -12,6 +12,7 @@ namespace GameFramework
         double interval { get; }
         double elapsedTime { get; }
         long processibleTick { get; }
+        double deltaTime { get; }
 
         void Run(long tick, double interval, double elapsedTime);
         void Stop();
