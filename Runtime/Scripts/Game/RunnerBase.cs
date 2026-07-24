@@ -30,7 +30,7 @@ namespace GameFramework
         }
 
         public ITickUpdater tickUpdater { get; private set; }
-        public INetworkTime networkTime { get; private set; }
+        public INetworkTime networkTime { get; protected set; }
 
         public bool initialized { get; protected set; }
 
@@ -40,19 +40,12 @@ namespace GameFramework
         {
             tickUpdater = GetComponent<ITickUpdater>() ?? throw new ArgumentNullException(nameof(ITickUpdater));
             tickUpdater.onTick += OnTick;
-            networkTime = CreateNetworkTime();   // 서버=null(override 안 함), 클라=MirrorNetworkTime. tickUpdater와 달리 null 허용.
 
             initialized = true;
         }
 
         public virtual async Task DeinitializeAsync()
         {
-            // teardown 시점에 정적 current를 정리한다 (Stop()은 일시정지라 current를 유지).
-            if (Runner.current == this)
-            {
-                Runner.current = null;
-            }
-
             tickUpdater.onTick -= OnTick;
             tickUpdater = null;
             networkTime = null;
@@ -62,14 +55,12 @@ namespace GameFramework
 
         public virtual void Run(long tick, double interval, double elapsedTime)
         {
-            Runner.current = this;
-
             tickUpdater.Run(tick, interval, elapsedTime);
         }
 
         public virtual void Stop()
         {
-            // 일시정지: 틱만 멈춘다. 정적 current는 유지(정지 중에도 Runner.Time 등이 유효해야 함).
+            // 일시정지: 틱만 멈춘다.
             tickUpdater.Stop();
         }
 
@@ -121,11 +112,5 @@ namespace GameFramework
                 }
             }
         }
-
-        /// <summary>
-        /// 사이드별 네트워크 시간 소스를 생성한다. 기본 null(서버 — 자기 권위 시간, Runner.NetworkTime 미사용).
-        /// 클라가 override해 네트워크 동기 시간을 제공한다.
-        /// </summary>
-        protected virtual INetworkTime CreateNetworkTime() => null;
     }
 }
