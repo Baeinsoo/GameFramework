@@ -19,8 +19,7 @@ namespace GameFramework
         void Stop();
         void UpdateRunner();
 
-        void AddListener(object listener);
-        void RemoveListener(object listener);
-        void DispatchEvent<T>();
+        void RegisterSystem<TPhase>(ITickSystem system);
+        void UnregisterSystem(ITickSystem system);
     }
 }
