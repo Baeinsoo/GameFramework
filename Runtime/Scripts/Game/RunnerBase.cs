@@ -43,7 +43,11 @@ namespace GameFramework
                 list = new List<ITickSystem>();
                 _tickSystems[key] = list;
             }
-            list.Add(system);
+            // 중복 등록 방지(구 리스너 맵의 idempotency 유지) — 같은 인스턴스가 두 번 틱하지 않게.
+            if (list.Contains(system) == false)
+            {
+                list.Add(system);
+            }
         }
 
         public void UnregisterSystem(ITickSystem system)
