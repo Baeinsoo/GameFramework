@@ -17,7 +17,6 @@ namespace GameFramework
 
         void Run(long tick, double interval, double elapsedTime);
         void Stop();
-        void UpdateRunner();
 
         void RegisterSystem<TPhase>(ITickSystem system);
         void UnregisterSystem(ITickSystem system);

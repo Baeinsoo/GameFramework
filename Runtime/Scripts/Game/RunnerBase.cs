@@ -112,6 +112,6 @@ namespace GameFramework
             UpdateRunner();
         }
 
-        public abstract void UpdateRunner();
+        protected abstract void UpdateRunner();
     }
 }
