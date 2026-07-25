@@ -58,15 +58,17 @@ namespace GameFramework
             }
         }
 
-        // 페이즈에 등록된 시스템을 실행. 역방향 순회 = Tick 중 자기 해제(엔티티 사망→Cleanup)해도 안전.
-        // 페이즈 내 순서엔 의존하지 않는다(각 페이즈 소비자 ≤1종 또는 순서 무관 AI).
+        // 페이즈에 등록된 시스템을 등록 순서대로 실행(추가 할당 없음).
+        // 불변식: 시스템은 자기 Tick 도중 UnregisterSystem을 호출하지 않는다 —
+        // 엔티티 사망→Cleanup(=해제)은 파이프라인의 별도 스텝(FlushDespawns)으로 지연되므로
+        // 이 순회 중 list는 변하지 않는다. (이 전제가 깨지면 스냅샷 순회로 바꿔야 함.)
         protected void RunPhase<TPhase>(long tick, float deltaTime)
         {
             if (_tickSystems.TryGetValue(typeof(TPhase), out var list) == false)
             {
                 return;
             }
-            for (int i = list.Count - 1; i >= 0; i--)
+            for (int i = 0; i < list.Count; i++)
             {
                 list[i].Tick(tick, deltaTime);
             }
