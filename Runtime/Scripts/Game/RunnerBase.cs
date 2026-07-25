@@ -58,19 +58,24 @@ namespace GameFramework
             }
         }
 
-        // 페이즈에 등록된 시스템을 등록 순서대로 실행(추가 할당 없음).
-        // 불변식: 시스템은 자기 Tick 도중 UnregisterSystem을 호출하지 않는다 —
-        // 엔티티 사망→Cleanup(=해제)은 파이프라인의 별도 스텝(FlushDespawns)으로 지연되므로
-        // 이 순회 중 list는 변하지 않는다. (이 전제가 깨지면 스냅샷 순회로 바꿔야 함.)
+        // 순회 전 스냅샷용 재사용 버퍼(RunPhase 공통). RunPhase는 protected라 시스템이 재진입
+        // 호출할 수 없어(시스템은 RunnerBase 비상속) 버퍼 하나를 공유해도 안전하다.
+        private readonly List<ITickSystem> _runBuffer = new List<ITickSystem>();
+
+        // 페이즈 시스템을 등록 순서대로 실행. 순회 전 재사용 버퍼로 스냅샷을 떠서 —
+        // Tick 도중 원본 list가 (해제/등록으로) 바뀌어도 안전하고, 순회 순서도 흔들리지 않는다.
+        // 버퍼 재사용이라 최초 1회(최대 페이즈 크기)만 커지고 이후엔 추가 할당 없음(GC 거의 0).
         protected void RunPhase<TPhase>(long tick, float deltaTime)
         {
             if (_tickSystems.TryGetValue(typeof(TPhase), out var list) == false)
             {
                 return;
             }
-            for (int i = 0; i < list.Count; i++)
+            _runBuffer.Clear();
+            _runBuffer.AddRange(list);
+            for (int i = 0; i < _runBuffer.Count; i++)
             {
-                list[i].Tick(tick, deltaTime);
+                _runBuffer[i].Tick(tick, deltaTime);
             }
         }
 
