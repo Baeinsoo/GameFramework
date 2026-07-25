@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using GameFramework.Runner;
 
 namespace GameFramework.Tests
 {

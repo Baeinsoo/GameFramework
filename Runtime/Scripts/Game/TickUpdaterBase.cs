@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-namespace GameFramework
+namespace GameFramework.Runner
 {
     public class TickUpdaterBase : MonoBehaviour, ITickUpdater
     {

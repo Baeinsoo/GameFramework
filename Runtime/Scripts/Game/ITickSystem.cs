@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Runner
 {
     /// <summary>
     /// 틱 파이프라인의 한 스텝. Runner가 페이즈별로 등록된 순서대로 Tick을 호출한다.

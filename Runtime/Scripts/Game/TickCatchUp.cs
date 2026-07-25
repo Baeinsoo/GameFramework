@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Runner
 {
     /// <summary>
     /// 프레임당 틱 캐치업 상한 계산(순수). 한 프레임에 처리할 틱을 상한으로 잘라,

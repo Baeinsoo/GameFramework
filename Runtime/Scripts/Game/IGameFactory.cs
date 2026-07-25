@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace GameFramework
+namespace GameFramework.Runner
 {
     public interface IGameFactory
     {

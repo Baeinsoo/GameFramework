@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using GameFramework.Netcode;
 
-namespace GameFramework
+namespace GameFramework.Runner
 {
     public interface IRunner : IInitializableAsync, IDeinitializableAsync
     {
@@ -17,7 +17,6 @@ namespace GameFramework
 
         void Run(long tick, double interval, double elapsedTime);
         void Stop();
-        void UpdateRunner();
 
         void RegisterSystem<TPhase>(ITickSystem system);
         void UnregisterSystem(ITickSystem system);

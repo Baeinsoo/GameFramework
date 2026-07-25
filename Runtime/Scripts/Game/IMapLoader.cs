@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace GameFramework
+namespace GameFramework.Runner
 {
     /// <summary>
     /// 맵 씬 로드/언로드 추상. 매치 환경 셋업의 일부로 host(Factory)가 오케스트레이션한다.
