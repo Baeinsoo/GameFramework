@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using GameFramework.Netcode;
 
-namespace GameFramework
+namespace GameFramework.Runner
 {
     public abstract class RunnerBase : MonoBehaviour, IRunner
     {

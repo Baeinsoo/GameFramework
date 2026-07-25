@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using GameFramework.Netcode;
 
-namespace GameFramework
+namespace GameFramework.Runner
 {
     public interface IRunner : IInitializableAsync, IDeinitializableAsync
     {

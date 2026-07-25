@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace GameFramework.Runner
 {
     /// <summary>
     /// Runner(호스트) 수명 상태. 행동 없는 "단계 라벨"이라 상태 플래그(enum)로 표현한다.
