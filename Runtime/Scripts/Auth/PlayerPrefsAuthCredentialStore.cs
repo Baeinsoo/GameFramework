@@ -28,11 +28,12 @@ namespace GameFramework.Auth
             {
                 credential = JsonUtility.FromJson<AuthCredential>(json);
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
                 //  기기를 손으로 만져 저장값이 JSON 자체가 아니게 된 경우 — JsonUtility가 파싱
                 //  단계에서 예외를 던진다. 앱을 죽이는 대신 "자격증명 없음"으로 취급해
                 //  로그인 화면으로 보낸다.
+                Debug.LogWarning($"[Auth] 저장된 자격증명 파싱에 실패해 자격증명 없음으로 취급합니다: {ex.Message}");
                 return null;
             }
 
