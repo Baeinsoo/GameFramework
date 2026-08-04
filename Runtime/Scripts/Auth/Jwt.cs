@@ -25,13 +25,16 @@ namespace GameFramework.Auth
             }
 
             string header = DecodeToString(parts[0]);
-            //  알고리즘을 고정하지 않으면 alg를 none이나 비대칭으로 바꾼 토큰이 통과한다.
+            //  실제 위조 방지는 아래 서명 검증이 한다 — HMAC-SHA256을 헤더 내용과 무관하게 항상 돌리므로
+            //  헤더가 alg를 none이나 다른 값으로 적어도 서명 없이는 통과할 수 없다.
+            //  이 체크는 그 위에 얹는 defense-in-depth로, 형식이 어긋나거나 예상 밖인 헤더를 조기에 걸러낸다.
             if (header == null || header.Replace(" ", string.Empty).Contains(ExpectedHeaderAlgorithm) == false)
             {
                 return false;
             }
 
-            if (ComputeSignature($"{parts[0]}.{parts[1]}", secret) != parts[2])
+            string computedSignature = ComputeSignature($"{parts[0]}.{parts[1]}", secret);
+            if (ConstantTimeEquals(computedSignature, parts[2]) == false)
             {
                 return false;
             }
@@ -60,6 +63,21 @@ namespace GameFramework.Auth
         {
             using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
             return Base64Url(hmac.ComputeHash(Encoding.UTF8.GetBytes(signingInput)));
+        }
+
+        //  일반 문자열 비교(!=)는 처음 다른 글자가 나오는 위치에서 바로 멈춘다 — 그 응답 시간 차이로
+        //  서명을 한 글자씩 알아낼 수 있다(timing attack). 길이만 먼저 보고, 내용은 끝까지 다 훑어서
+        //  비교한다(CryptographicOperations.FixedTimeEquals) — 어디까지 맞았는지 시간으로 새지 않는다.
+        private static bool ConstantTimeEquals(string a, string b)
+        {
+            if (a.Length != b.Length)
+            {
+                return false;
+            }
+
+            byte[] aBytes = Encoding.UTF8.GetBytes(a);
+            byte[] bBytes = Encoding.UTF8.GetBytes(b);
+            return CryptographicOperations.FixedTimeEquals(aBytes, bBytes);
         }
 
         private static string Base64Url(byte[] bytes)
@@ -98,7 +116,16 @@ namespace GameFramework.Auth
                 return false;
             }
 
-            value = json.Substring(start, end - start);
+            string candidate = json.Substring(start, end - start);
+            //  이스케이프(예: \")를 해석하지 않는다 — 값 안에 백슬래시가 있으면 진짜 닫는 따옴표를
+            //  못 찾고 엉뚱한 위치에서 잘라 다른 사람의 subject를 돌려줄 위험이 있다. 값을 추측하지
+            //  않고 실패로 처리한다(신원을 잘못 인정하는 것보다 거부가 안전).
+            if (candidate.IndexOf('\\') >= 0)
+            {
+                return false;
+            }
+
+            value = candidate;
             return true;
         }
 
