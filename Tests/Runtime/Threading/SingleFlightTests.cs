@@ -88,6 +88,31 @@ namespace GameFramework.Tests.Threading
             Assert.That(executions, Is.EqualTo(2));
         });
 
+        [UnityTest]
+        public IEnumerator 동기_구간에_들어온_호출도_같은_비행을_받는다() => UniTask.ToCoroutine(async () =>
+        {
+            //  operation이 첫 await에 닿기 전에 들어온 호출. 예전 구현은 여기서 빈 태스크를 돌려줘
+            //  호출자가 조용히 null을 들고 진행했다.
+            var flight = new SingleFlight<int>();
+            var gate = new UniTaskCompletionSource<int>();
+            UniTask<int> reentrant = default;
+            int executions = 0;
+
+            UniTask<int> Operation()
+            {
+                executions++;
+                reentrant = flight.RunAsync(Operation);
+                return gate.Task;
+            }
+
+            UniTask<int> first = flight.RunAsync(Operation);
+            gate.TrySetResult(7);
+
+            Assert.That(executions, Is.EqualTo(1));
+            Assert.That(await reentrant, Is.EqualTo(7));
+            Assert.That(await first, Is.EqualTo(7));
+        });
+
         //  NUnit의 Throws 제약은 UniTask를 다루지 못해서 직접 잡는다.
         private static async UniTask<Exception> CatchAsync(UniTask<int> task)
         {
