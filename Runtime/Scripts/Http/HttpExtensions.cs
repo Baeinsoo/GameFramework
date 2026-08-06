@@ -54,15 +54,5 @@ namespace GameFramework
                 .ToString()
                 ;
         }
-
-        public static UnityWebRequestAwaiter GetAwaiter<T>(this UnityWebRequestAsyncOperation asyncOperation)
-        {
-            return new UnityWebRequestAwaiter(asyncOperation);
-        }
-
-        public static WebRequestAwaiter<T> GetAwaiter<T>(this WebRequest<T> webRequest)
-        {
-            return new WebRequestAwaiter<T>(webRequest);
-        }
     }
 }
