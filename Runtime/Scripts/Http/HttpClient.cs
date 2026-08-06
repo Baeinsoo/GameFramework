@@ -32,7 +32,17 @@ namespace GameFramework.Http
                     timeoutSource.CancelAfter(Timeout);
                 }
 
-                return await handler.SendAsync(request, timeoutSource.Token);
+                try
+                {
+                    return await handler.SendAsync(request, timeoutSource.Token);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested == false)
+                {
+                    //  호출자가 취소한 게 아니라면 남은 원인은 타임아웃뿐이다. 이 계층의 계약상 "서버에 닿지
+                    //  못했다"는 StatusCode 없는 HttpRequestException으로 표현해야, 호출부의 기존 catch가
+                    //  잡고 복구 경로를 탈 수 있다.
+                    throw new HttpRequestException($"요청이 {Timeout.TotalSeconds}초 안에 끝나지 않았습니다. uri: {request.Uri}");
+                }
             }
         }
     }

@@ -100,21 +100,24 @@ namespace GameFramework.Tests.Http
         });
 
         [UnityTest]
-        public IEnumerator 타임아웃이_지나면_취소된다() => UniTask.ToCoroutine(async () =>
+        public IEnumerator 타임아웃이_지나면_상태코드_없는_예외를_던진다() => UniTask.ToCoroutine(async () =>
         {
             //  핸들러가 스스로는 끝나지 않고, 넘겨받은 토큰이 취소될 때만 끝난다. 그 토큰은
             //  HttpClient가 타임아웃과 묶어서 만든 것이라, 취소가 오면 곧 타임아웃이 동작한 것이다.
             //  (핸들러가 토큰을 무시하면 아무도 못 끊는다 — .NET도 같은 계약이다.)
+            //  호출자가 취소한 게 아니므로 HttpClient는 이걸 HttpRequestException(StatusCode == null,
+            //  "서버에 닿지 못했다")로 변환해야 기존 catch(HttpRequestException) 경로가 잡을 수 있다.
             var fake = new FakeHttpMessageHandler((_, cancellationToken) => UniTask.Never<HttpResponseMessage>(cancellationToken));
             var client = new HttpClient(fake) { Timeout = TimeSpan.FromMilliseconds(50) };
 
             try
             {
                 await client.SendAsync(HttpRequestMessage.Get("http://example.com"));
-                Assert.Fail("OperationCanceledException이 나와야 한다.");
+                Assert.Fail("HttpRequestException이 나와야 한다.");
             }
-            catch (OperationCanceledException)
+            catch (HttpRequestException exception)
             {
+                Assert.That(exception.StatusCode, Is.Null);
             }
         });
     }
