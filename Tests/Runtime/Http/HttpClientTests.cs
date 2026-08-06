@@ -120,5 +120,32 @@ namespace GameFramework.Tests.Http
                 Assert.That(exception.StatusCode, Is.Null);
             }
         });
+
+        [UnityTest]
+        public IEnumerator 비행_중_호출자가_취소하면_취소예외로_남는다() => UniTask.ToCoroutine(async () =>
+        {
+            //  호출자가 취소했을 때와 타임아웃이 지났을 때, SendAsync 안에서는 둘 다 똑같은
+            //  OperationCanceledException으로 온다. 이 둘을 구분하는 건 catch의 when 조건 하나뿐이다.
+            //  그게 깨지면 호출자가 취소한 요청이 "서버에 못 닿았다"(HttpRequestException)로 둔갑한다.
+            var fake = new FakeHttpMessageHandler((_, cancellationToken) => UniTask.Never<HttpResponseMessage>(cancellationToken));
+            var client = new HttpClient(fake) { Timeout = TimeSpan.FromSeconds(30) };
+            var caller = new CancellationTokenSource();
+            //  UniTask.Delay는 EditMode에서 플레이어 루프에 묶여 불안정할 수 있어, Unity와
+            //  독립적인 타이머를 쓰는 CancelAfter로 SendAsync가 이미 대기 중일 때 취소를 건다.
+            caller.CancelAfter(TimeSpan.FromMilliseconds(50));
+
+            try
+            {
+                await client.SendAsync(HttpRequestMessage.Get("http://example.com"), caller.Token);
+                Assert.Fail("OperationCanceledException이 나와야 한다.");
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (HttpRequestException)
+            {
+                Assert.Fail("호출자가 취소했으므로 OperationCanceledException이어야 하는데 HttpRequestException으로 바뀌었다.");
+            }
+        });
     }
 }
