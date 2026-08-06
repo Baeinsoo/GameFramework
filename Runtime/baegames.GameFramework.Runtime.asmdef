@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "VContainer",
-        "baegames.GameFramework.World"
+        "baegames.GameFramework.World",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
