@@ -5,6 +5,7 @@
         "baegames.GameFramework.Runtime",
         "baegames.GameFramework.World",
         "VContainer",
+        "UniTask",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
