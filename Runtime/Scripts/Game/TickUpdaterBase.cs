@@ -8,8 +8,13 @@ namespace GameFramework.Runner
     {
         // 프레임당 캐치업 상한. 50Hz 기준 최대 160ms. 초과분은 다음 프레임으로 이월.
         // 지속적으로 프레임이 느린(과부하) 호스트에선 틱 시계가 실시간보다 계속 뒤처진다 —
-        // "멈춤(freeze)"을 "시간 뒤처짐"으로 맞바꾼 의도된 완만한 열화다. 뒤처짐을 앞으로
-        // 건너뛰는 snap-forward는 Stage④(reconciliation) 몫이라 여기선 하지 않는다.
+        // "멈춤(freeze)"을 "시간 뒤처짐"으로 맞바꾼 의도된 완만한 열화다.
+        //
+        // 많이 밀렸을 때 밀린 틱을 건너뛰는 snap-forward는 **해보고 접었다**(2026-08-09).
+        // Unity Netcode for Entities가 1.8.0에서 오히려 skip을 걷어내고 catch-up으로 바꿨고,
+        // 표준 대안은 버리기가 아니라 배칭이다(두 틱을 각각 dt로 → 한 틱을 2×dt로).
+        // 더 손봐야 할 일이 생기면 여기가 아니라 시계 쪽(ClockDilator)을 고도화한다 —
+        // "크면 점프" 정책을 시계와 틱 두 층에 나눠 두면 그 불일치가 다시 문제가 된다.
         private const int MaxTicksPerFrame = 8;
 
         public event Action<long> onTick;
