@@ -50,5 +50,40 @@ namespace GameFramework.Tests
             var c = new LeadController();
             Assert.AreEqual(0.030, c.Adjust(0.030, S(0, 0, 0, 0, 0)), 1e-9);
         }
+
+        //  기본 밴드의 평형점 = "가장 늦게 온 입력이 1~3틱 이르게". 이 범위 밖으로 나가면 되돌린다.
+        //  꼬리가 마감선에 붙는 상태(maxD ≥ 0)를 평형으로 두면 지터 한 번에 곧바로 지각이 된다.
+
+        [TestCase(-1)]
+        [TestCase(-2)]
+        [TestCase(-3)]
+        public void Adjust_DefaultBand_TailOneToThreeTicksEarly_IsDeadZone(int maxD)
+        {
+            var c = new LeadController();
+            Assert.AreEqual(0.030, c.Adjust(0.030, S(-4, maxD, 0, 0, 5)), 1e-9);
+        }
+
+        [Test]
+        public void Adjust_DefaultBand_TailOnTime_Grows()
+        {
+            var c = new LeadController();
+            // maxD=0 → +0.002*(0-(-1)) = +0.002
+            Assert.AreEqual(0.032, c.Adjust(0.030, S(-2, 0, 0, 0, 5)), 1e-9);
+        }
+
+        [Test]
+        public void Adjust_DefaultBand_TailLate_GrowsMore()
+        {
+            var c = new LeadController();
+            // maxD=+2(2틱 지각) → +0.002*(2-(-1)) = +0.006
+            Assert.AreEqual(0.036, c.Adjust(0.030, S(-1.7, 2, 0, 0, 5)), 1e-9);
+        }
+
+        [Test]
+        public void Adjust_DefaultBand_TailTooEarly_Shrinks()
+        {
+            var c = new LeadController();
+            Assert.AreEqual(0.028, c.Adjust(0.030, S(-6, -4, 0, 0, 5)), 1e-9);
+        }
     }
 }
