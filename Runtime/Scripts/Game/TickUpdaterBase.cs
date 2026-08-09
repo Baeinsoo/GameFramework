@@ -18,6 +18,11 @@ namespace GameFramework.Runner
         public double interval { get; private set; }
         public double elapsedTime { get; protected set; }
 
+        // 멈춤 계측. 경고는 에피소드당 1회만 찍혀 지나가면 사라지므로, 나중에 "이 측정 창에
+        // 멈춤이 있었나"를 물을 수 있도록 횟수와 최대 뒤처짐을 남긴다.
+        public int catchUpCappedCount { get; private set; }
+        public long maxTicksBehind { get; private set; }
+
         public long processibleTick
         {
             get
@@ -65,9 +70,16 @@ namespace GameFramework.Runner
                 bool capped = frameEnd < processibleTick;
                 if (capped)
                 {
+                    long behind = processibleTick - tick;
+                    if (behind > maxTicksBehind)
+                    {
+                        maxTicksBehind = behind;
+                    }
+
                     if (loggedCatchUpWarning == false)
                     {
-                        Debug.LogWarning($"[TickUpdater] catch-up capped at {MaxTicksPerFrame} ticks/frame (behind by {processibleTick - tick}).");
+                        catchUpCappedCount++;
+                        Debug.LogWarning($"[TickUpdater] catch-up capped at {MaxTicksPerFrame} ticks/frame (behind by {behind}).");
                         loggedCatchUpWarning = true;
                     }
                 }
