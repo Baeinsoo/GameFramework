@@ -40,6 +40,16 @@ namespace GameFramework.Netcode
         /// <summary>보관 중인 항목 수(용량에서 포화).</summary>
         public int Count { get; private set; }
 
+        /// <summary>
+        /// 이 버퍼가 기록한 가장 이른 틱. 한 번도 기록하지 않았으면 null. 링이 돌아 그 틱이 밀려나도 값은
+        /// 그대로다 — "보관 중인 가장 오래된 것"이 아니라 "언제부터 기록하기 시작했나"를 뜻한다.
+        ///
+        /// 왜 필요한가: 조회 실패에는 두 뜻이 있다 — ① 아직 살지 않은 틱(예: 매치 참가 전) ② 살았지만
+        /// 링 밖으로 밀려난 틱. 넷코드 보정에서 ①은 "내 예측이 틀렸다는 증거가 없음"이라 손대면 안 되고,
+        /// ②는 "많이 뒤처짐"이라 따라잡아야 한다. 이 값이 둘을 가르는 기준이다.
+        /// </summary>
+        public long? FirstRecordedTick { get; private set; }
+
         /// <summary>가장 최근에 기록된 항목을 돌려준다. 비어 있으면 false.</summary>
         public bool TryGetLatest(out T value)
         {
@@ -62,6 +72,11 @@ namespace GameFramework.Netcode
             if (!_hasAny || tick > _latestTick)
             {
                 _latestTick = tick;
+            }
+            // 재생이 과거 틱을 다시 기록하는 경로가 있어, 더 이른 틱을 보면 낮춘다.
+            if (FirstRecordedTick == null || tick < FirstRecordedTick.Value)
+            {
+                FirstRecordedTick = tick;
             }
             _hasAny = true;
             if (Count < _capacity)
