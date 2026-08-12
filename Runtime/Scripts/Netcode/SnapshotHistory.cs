@@ -21,6 +21,12 @@ namespace GameFramework.Netcode
         /// <summary>가장 최근에 기록된 스냅샷. 비어 있으면 null.</summary>
         public EntitySnapshot? Latest => _buffer.TryGetLatest(out var snapshot) ? snapshot : (EntitySnapshot?)null;
 
+        /// <summary>
+        /// 이 히스토리가 기록한 가장 이른 틱(밀려나도 유지). 조회 실패가 "아직 살지 않은 틱"인지
+        /// "밀려난 틱"인지 가를 때 쓴다 — 상세는 <see cref="SequenceBuffer{T}.FirstRecordedTick"/>.
+        /// </summary>
+        public long? FirstRecordedTick => _buffer.FirstRecordedTick;
+
         /// <summary>스냅샷을 기록한다. 같은 슬롯의 오래된 틱은 덮어써진다.</summary>
         public void Record(EntitySnapshot snapshot) => _buffer.Record(snapshot.Tick, snapshot);
 
