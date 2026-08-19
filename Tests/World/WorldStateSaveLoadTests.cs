@@ -76,15 +76,24 @@ namespace GameFramework.Tests.World
         }
 
         [Test]
-        public void LoadState_게임훅이_false면_전체도_false다()
+        public void LoadState_게임훅이_false면_반환값은_false지만_베이스_위치속도는_이미_적용된다()
         {
             var registry = new EntityRegistry();
-            registry.Add(MakeSimulated("a", 1f));
+            var entity = MakeSimulated("a", 1f);
+            registry.Add(entity);
             var world = new TestWorld(registry) { LoadGameResult = false };
 
             world.SaveState(10);
 
+            entity.Get<GameFramework.World.Transform>().Position = new Vector3(99f, 0f, 0f);
+            entity.Get<Velocity>().Linear = new Vector3(0f, 99f, 0f);
+
+            // 베이스(위치·속도)와 게임 훅은 한 트랜잭션으로 묶여 되돌아가지 않는다 — 훅이 실패해도
+            // 베이스는 이미 적용된 채로 남는다. 부르는 쪽(예: 클라 예측 롤백)이 이 뒤에 권위 값으로
+            // 덮어쓰는 걸 전제로 하는 의도된 동작이라 값도 함께 확인해 둔다.
             Assert.IsFalse(world.LoadState(10));
+            Assert.AreEqual(1f, entity.Get<GameFramework.World.Transform>().Position.X);
+            Assert.AreEqual(1f, entity.Get<Velocity>().Linear.Y);
         }
 
         [Test]

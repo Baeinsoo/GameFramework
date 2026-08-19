@@ -15,6 +15,10 @@ namespace GameFramework.World
 
         /// <summary>
         /// 그 틱 상태로 되돌린다. 기록이 없으면 아무것도 바꾸지 않고 false.
+        /// <b>단, 기록은 있는데 게임 훅(<see cref="WorldBase.LoadGameState"/>)이 되돌리지 못한 경우엔
+        /// 위치·속도는 이미 적용된 채로 false가 돌아온다</b> — 베이스와 게임 상태를 한 트랜잭션으로
+        /// 묶어 되돌리지 않기 때문. 부르는 쪽은 false를 받으면 그 뒤에 권위 값(서버 스냅샷 등)으로
+        /// 덮어쓰거나 재생을 생략하는 식으로 처리해야 한다.
         /// GGPO <c>load_game_state</c> 대응.
         /// </summary>
         bool LoadState(long tick);

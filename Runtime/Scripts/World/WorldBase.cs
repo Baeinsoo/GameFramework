@@ -98,7 +98,11 @@ namespace GameFramework.World
         /// </summary>
         protected virtual void SaveGameState(long tick) { }
 
-        /// <summary>게임이 얹은 상태를 되돌린다. 그 틱 기록이 없으면 false.</summary>
+        /// <summary>
+        /// 게임이 얹은 상태를 되돌린다. 그 틱 기록이 없으면 false.
+        /// 여기서 false를 돌려줘도, <see cref="LoadState"/>가 이미 적용한 베이스 위치·속도는
+        /// 되돌아가지 않고 그대로 남는다 — 되돌리기 실패를 이유로 베이스 값까지 롤백하지 않는다.
+        /// </summary>
         protected virtual bool LoadGameState(long tick) => true;
 
         // Generation 페이즈 (world-core-connection-architecture.md).
