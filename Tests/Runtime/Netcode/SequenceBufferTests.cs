@@ -92,7 +92,7 @@ namespace GameFramework.Tests.Netcode
         [Test]
         public void ReferenceTypePayload_IsStoredByReference()
         {
-            // InputCommand/PredictedAbilityState 같은 참조형 페이로드가 그대로 보존되는지.
+            // InputCommand/LOPSavedState 같은 참조형 페이로드가 그대로 보존되는지.
             var buffer = new SequenceBuffer<object>(4);
             var payload = new object();
             buffer.Record(5, payload);
