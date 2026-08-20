@@ -50,6 +50,9 @@ namespace GameFramework.Netcode
         /// </summary>
         public long? FirstRecordedTick { get; private set; }
 
+        /// <summary>가장 최근에 기록한 틱. 한 번도 기록하지 않았으면 null.</summary>
+        public long? LatestTick => _hasAny ? _latestTick : (long?)null;
+
         /// <summary>가장 최근에 기록된 항목을 돌려준다. 비어 있으면 false.</summary>
         public bool TryGetLatest(out T value)
         {
