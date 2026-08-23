@@ -24,6 +24,11 @@ namespace GameFramework.World
             {
                 throw new ArgumentOutOfRangeException(nameof(height), height, "몸 높이는 0보다 커야 한다.");
             }
+            if (height < radius * 2f)
+            {
+                throw new ArgumentOutOfRangeException(nameof(height), height,
+                    "몸 높이는 지름(반지름×2)보다 작을 수 없다 — 그보다 낮으면 sweep과 물리 콜라이더가 서로 다른 몸을 본다.");
+            }
 
             Radius = radius;
             Height = height;
