@@ -30,7 +30,7 @@ namespace GameFramework.Editor
                 .Where(t => t.GetCustomAttribute(attributeType) != null)
                 .Where(t => typeof(MonoBehaviour).IsAssignableFrom(t) == false);
 
-            foreach (var type in invalidTypes.OrEmpty())
+            foreach (var type in invalidTypes)
             {
                 Debug.LogError($"[{type.Name}] with {attributeType.Name} must inherit from MonoBehaviour");
             }
