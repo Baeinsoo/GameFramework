@@ -17,7 +17,7 @@ namespace GameFramework
             var go = new GameObject(name);
             go.transform.SetParent(parent.transform, false);
 
-            foreach (var componentType in componentTypes.OrEmpty())
+            foreach (var componentType in componentTypes)
             {
                 go.AddComponent(componentType);
             }

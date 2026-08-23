@@ -11,12 +11,12 @@ namespace GameFramework
         /// </summary>
         public static void InjectSceneObjects(this IObjectResolver resolver, Scene scene)
         {
-            foreach (var go in scene.FindGameObjectsWithAttribute<SceneInjectGameObjectAttribute>().OrEmpty())
+            foreach (var go in scene.FindGameObjectsWithAttribute<SceneInjectGameObjectAttribute>())
             {
                 resolver.InjectGameObject(go);
             }
 
-            foreach (var mb in scene.FindComponentsWithAttribute<SceneInjectMonoBehaviourAttribute>().OrEmpty())
+            foreach (var mb in scene.FindComponentsWithAttribute<SceneInjectMonoBehaviourAttribute>())
             {
                 resolver.Inject(mb);
             }
