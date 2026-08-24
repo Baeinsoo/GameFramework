@@ -26,5 +26,20 @@ namespace GameFramework.Netcode
             float t = elapsed > maxElapsed ? maxElapsed : elapsed;
             return position + velocity * t + 0.5f * acceleration * (t * t);
         }
+
+        /// <summary>
+        /// <paramref name="elapsed"/>초 뒤 속도(<c>v(t) = v0 + a·t</c>). <see cref="Position"/>과 같은
+        /// <paramref name="elapsed"/>/<paramref name="maxElapsed"/>로 불러야 두 반환값이 같은 순간의
+        /// 위치·속도로 앞뒤가 맞는다 — 위치가 상한에서 멈추면 속도도 그 순간 값에서 같이 멈춘다.
+        /// </summary>
+        public static Vector3 Velocity(Vector3 velocity, Vector3 acceleration, float elapsed, float maxElapsed)
+        {
+            if (elapsed <= 0f)
+            {
+                return velocity;
+            }
+            float t = elapsed > maxElapsed ? maxElapsed : elapsed;
+            return velocity + acceleration * t;
+        }
     }
 }
