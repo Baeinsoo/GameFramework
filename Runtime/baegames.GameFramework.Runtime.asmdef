@@ -3,6 +3,7 @@
     "rootNamespace": "",
     "references": [
         "VContainer",
+        "MessagePipe",
         "baegames.GameFramework.World",
         "UniTask"
     ],
