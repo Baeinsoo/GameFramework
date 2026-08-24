@@ -16,6 +16,13 @@ namespace GameFramework.World
         public abstract void SetRotation(Quaternion rotation);
         public abstract void SetVelocity(Vector3 linear);
 
+        /// <summary>물리 엔진이 굴리는 몸(다이나믹)의 결과를 World로 되읽을 때 쓴다.</summary>
+        public abstract Vector3 GetPosition();
+
+        public abstract Quaternion GetRotation();
+
+        public abstract Vector3 GetVelocity();
+
         /// <summary>지정 레이어와의 겹침을 밀어낼 벡터(겹침 없으면 0). 위치 반영은 호출부 몫.</summary>
         public abstract Vector3 ComputePushOut(int layerMask);
     }
