@@ -18,6 +18,10 @@ namespace GameFramework.World
         public EntityRegistry EntityRegistry { get; }
         public WorldEventBuffer EventBuffer { get; }
 
+        public long GameplayStartTick { get; set; } = long.MaxValue;
+
+        protected bool HasStarted(long tick) => tick >= GameplayStartTick;
+
         protected WorldBase(EntityRegistry entityRegistry, WorldEventBuffer eventBuffer)
         {
             EntityRegistry = entityRegistry;
