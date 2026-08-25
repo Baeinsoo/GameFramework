@@ -35,7 +35,11 @@ namespace GameFramework.World
         /// </summary>
         public abstract void AddImpulseAtPosition(Vector3 impulse, Vector3 worldPoint);
 
-        /// <summary>지정 레이어와의 겹침을 밀어낼 벡터(겹침 없으면 0). 위치 반영은 호출부 몫.</summary>
-        public abstract Vector3 ComputePushOut(int layerMask);
+        /// <summary>
+        /// 지정 레이어와의 겹침을 밀어낼 벡터(겹침 없으면 0). 위치 반영은 호출부 몫.
+        /// 겹침을 판정할 포즈를 인자로 받는다 — 엔진 쪽 트랜스폼은 물리 스텝 뒤에야 갱신돼
+        /// 진실원본(World.Transform)보다 늦고 롤백 재생 중에는 얼어 있다.
+        /// </summary>
+        public abstract Vector3 ComputePushOut(Vector3 position, Quaternion rotation, int layerMask);
     }
 }
