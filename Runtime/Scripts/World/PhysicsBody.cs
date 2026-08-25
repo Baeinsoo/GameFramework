@@ -23,6 +23,12 @@ namespace GameFramework.World
 
         public abstract Vector3 GetVelocity();
 
+        /// <summary>
+        /// 월드 좌표 한 점에 순간 충격(임펄스)을 준다. 몸 중심에서 벗어난 지점이면 회전이 함께 생긴다.
+        /// 물리 엔진이 굴리는 몸(다이나믹)에만 의미가 있다.
+        /// </summary>
+        public abstract void AddImpulseAtPosition(Vector3 impulse, Vector3 worldPoint);
+
         /// <summary>지정 레이어와의 겹침을 밀어낼 벡터(겹침 없으면 0). 위치 반영은 호출부 몫.</summary>
         public abstract Vector3 ComputePushOut(int layerMask);
     }
