@@ -23,6 +23,12 @@ namespace GameFramework.World
 
         public abstract Vector3 GetVelocity();
 
+        /// <summary>제자리에서 도는 몸은 선속도가 0이라, 멎었는지 보려면 이것도 봐야 한다.</summary>
+        public abstract Vector3 GetAngularVelocity();
+
+        /// <summary>몸을 어딘가로 되돌릴 때 회전 관성까지 지워야 그 자리에 선다.</summary>
+        public abstract void SetAngularVelocity(Vector3 angular);
+
         /// <summary>
         /// 월드 좌표 한 점에 순간 충격(임펄스)을 준다. 몸 중심에서 벗어난 지점이면 회전이 함께 생긴다.
         /// 물리 엔진이 굴리는 몸(다이나믹)에만 의미가 있다.
