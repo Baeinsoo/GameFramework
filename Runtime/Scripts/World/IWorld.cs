@@ -7,6 +7,12 @@ namespace GameFramework.World
         void Tick(long tick, float deltaTime);
 
         /// <summary>
+        /// 이 틱 전에는 게임플레이가 시작되지 않았다. 확정 전엔 long.MaxValue.
+        /// 무엇을 멈출지는 각 월드가 정한다 — 부르는 쪽(넷코드·룰)은 숫자만 대입한다.
+        /// </summary>
+        long GameplayStartTick { get; set; }
+
+        /// <summary>
         /// 이번 틱 시뮬 상태를 보관한다. 되돌릴 수 있는 건 여기 담긴 것뿐이다.
         /// 무엇을 담을지는 각 게임의 월드가 정한다 — 부르는 쪽(넷코드)은 내용을 모른다.
         /// GGPO <c>save_game_state</c> 대응.

@@ -10,7 +10,15 @@ namespace GameFramework.World
     public interface IMotionBridge
     {
         void SyncTransforms();
-        void Depenetrate(Entity entity);
+
+        /// <summary>
+        /// 지오메트리에 파묻힌 엔티티를 밖으로 밀어내고, <b>실제로 민 벡터</b>를 돌려준다(안 밀었으면 0).
+        /// 부르는 쪽이 이 값을 쓰는 이유: 캡슐이 이미 콜라이더 <i>안</i>에서 시작하면 sweep은 히트를
+        /// 못 낸다(시작 겹침은 무시된다). 그래서 "벽에 닿았으니 속도를 지운다"가 실행되지 않아,
+        /// 막혀 있는데 중력만 계속 쌓이고 밀어내기와 줄다리기를 하게 된다. 민 방향을 알면 그 방향으로
+        /// 파고들던 속도를 지워 줄다리기를 끊을 수 있다(표준 키네마틱 컨트롤러가 하는 일).
+        /// </summary>
+        System.Numerics.Vector3 Depenetrate(Entity entity);
         void Separate(Entity entity);
         void PushMotion(Entity entity);
     }
