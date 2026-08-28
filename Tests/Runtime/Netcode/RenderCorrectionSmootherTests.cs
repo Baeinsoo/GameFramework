@@ -232,6 +232,87 @@ namespace GameFramework.Tests.Netcode
             Assert.AreEqual(coarse.Target(target).X, fine.Target(target).X, 1e-4f);
         }
 
+        //  ★ Important 1. 재보정 시 시드를 "마지막으로 낸 렌더 위치"가 아니라 oldSimPosition으로
+        //  잘못 잡으면(=이 클래스가 존재하는 이유 자체를 잃는다), 보정 B가 블렌드 도중 도착했을
+        //  때 실제 화면 위치가 아니라 서버가 알려준 "예전 sim 위치"에서 이어 붙는다 — 화면이 튄다.
+        //  Reconciler가 배치 전체를 게이트하므로(그 자신의 주석 기준 ~44%의 틱) 블렌드 도중
+        //  재보정이 도착하는 건 예외가 아니라 주 경로다. 같은 김에 재시드 시 _renderVelocity가
+        //  "블렌드 중이던 실제 화면 속도"를 쓰는지도 함께 지킨다(오늘까지 테스트가 없었다).
+        [Test]
+        public void OnCorrection_DuringBlend_ReseedsFromLastRenderedPosition_NotFromOldSim()
+        {
+            const float dt = 0.02f;
+            var s = Make();
+
+            //  블렌드 A: 1m 보정, 권위 속도 0(서버가 아직 안 움직이는 중).
+            s.Target(new Vector3(0, 0, 0));
+            s.OnCorrection(new Vector3(0, 0, 0), new Vector3(1f, 0, 0), Vector3.Zero, 0f);
+            s.Target(new Vector3(1f, 0, 0));                   // u=0 → 옛 자리(0,0,0)에 머문다
+            s.Advance(dt);                                     // elapsed=0.02 (아직 블렌드 중)
+            var preB = s.Target(new Vector3(1f, 0, 0));        // u=0.2 → 블렌드가 절반쯤 진행된 실제 화면 위치
+            s.Advance(dt);                                     // 이 틱의 사이클을 마저 닫는다(_renderVelocity 갱신)
+
+            //  보정 B 도착 — 블렌드 A가 아직 안 끝난 도중이다(elapsed=0.04 < smoothTime=0.1).
+            //  서버 쪽 sim은 그동안 1에 머물러 있었다(oldSimB == newSimA == 1).
+            s.OnCorrection(new Vector3(1f, 0, 0), new Vector3(1.5f, 0, 0), Vector3.Zero, 0f);
+            var afterB = s.Target(new Vector3(1.5f, 0, 0));    // u=0 → 재시드 직후 첫 렌더
+
+            //  옳은 재시드라면 여기서 preB(실제 화면 위치)에서 그대로 이어져야 한다.
+            //  oldSimPosition(1,0,0)에서 이었다면(버그) afterB가 preB가 아니라 그 근처로 튄다.
+            Assert.AreEqual(preB.X, afterB.X, 1e-3f,
+                "보정 B는 직전 sim 위치가 아니라 직전에 실제로 그리던 렌더 위치에서 이어져야 한다");
+
+            //  재시드된 속도도 확인한다: 블렌드 A 도중의 실제 화면 속도(이론상 5.2 m/s)가 섞여야
+            //  한다 — 0이거나 sim 속도만 쓰면 이 순간 기울기가 사라진다.
+            const float probeDt = 0.001f;
+            s.Advance(probeDt);
+            var probe = s.Target(new Vector3(1.5f, 0, 0));
+            float renderVelXAfterB = (probe.X - afterB.X) / probeDt;
+            Assert.Greater(renderVelXAfterB, 3f,
+                "재시드된 속도가 블렌드 중이던 실제 화면 속도를 반영하지 못했다");
+        }
+
+        //  ★ Important 2 (스폰 가드 1). EntityBinder가 인터폴레이터를 붙인 직후, 아직 한 번도
+        //  Target을 부르기 전에 OnCorrection이 먼저 올 수 있다(ReconcileSystem이 UpdateRunner
+        //  맨 앞에서 돈다). 이을 과거가 없으니 블렌드를 시작하면 안 되고, 다음 Target은 sim을
+        //  그대로 따라야 한다(원점에서 스폰 지점으로 미끄러지면 스폰이 깨진다).
+        [Test]
+        public void OnCorrection_BeforeAnyTarget_NextTargetFollowsSimExactly()
+        {
+            var s = Make();
+            //  Target을 한 번도 부르지 않은 채 첫 보정이 온다.
+            s.OnCorrection(new Vector3(0, 0, 0), new Vector3(3f, 4f, 0), new Vector3(1f, 0, 0), 0f);
+
+            var r = s.Target(new Vector3(3f, 4f, 0));
+            Assert.AreEqual(new Vector3(3f, 4f, 0), r,
+                "첫 Target 전에 온 보정은 블렌드를 시작하면 안 된다 — 원점에서 미끄러지면 스폰이 깨진다");
+        }
+
+        //  ★ Important 2 (스폰 가드 2). 스폰 직후 Target을 딱 한 번 부르고 바로 다음에 Advance가
+        //  온다(인터폴레이터의 Tick: Target 다음에 Advance) — 그 시점엔 아직 "직전 렌더"가 없다.
+        //  이때 _renderVelocity를 절대 위치 하나를 dt로 나눠 만들면(예: y=10에서 스폰, dt=0.02 →
+        //  500 m/s) 다음 보정의 블렌드가 그 가짜 속도에 끌려 목줄(5m) 끝까지 튕겨 나간다. 가드가
+        //  있으면 그 속도는 0으로 남아 보정이 정상 크기로 녹는다. 관측 가능한 결과(다음 보정의
+        //  블렌드 크기)로 확인한다 — private 필드를 직접 보지 않는다.
+        [Test]
+        public void FirstAdvance_BeforeTwoTargets_DoesNotSeedRenderVelocityFromSpawnPosition()
+        {
+            const float dt = 0.02f;
+            var s = Make();
+
+            //  스폰: Target 딱 한 번, 그 뒤 Advance 한 번(아직 두 번째 Target은 없다).
+            s.Target(new Vector3(0, 10, 0));
+            s.Advance(dt);
+
+            //  살짝 튀는 정상 크기의 보정(0.5m). 권위 속도는 0(아직 안 움직임).
+            s.OnCorrection(new Vector3(0, 10, 0), new Vector3(0, 10.5f, 0), Vector3.Zero, dt);
+            var rendered = s.Target(new Vector3(0, 10.5f, 0));
+
+            float lag = (new Vector3(0, 10.5f, 0) - rendered).Length();
+            Assert.Less(lag, 1f,
+                "스폰 직후의 가짜 renderVelocity(절대위치/dt)가 섞이면 이 잔여 오차가 목줄(5m)까지 튕겨 나간다");
+        }
+
         //  Reset 후에는 sim을 정확히 따른다.
         [Test]
         public void Reset_ClearsOffset()

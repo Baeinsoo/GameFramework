@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 
 namespace GameFramework.Netcode
@@ -7,15 +6,16 @@ namespace GameFramework.Netcode
     /// 서버 보정을 '보이는 위치'에서만 흡수한다. 시뮬(권위) 위치는 하드 보정 그대로 두고, 렌더가
     /// 시뮬 위에 오차 offset을 얹어 그린 뒤 그 offset을 0으로 몰아간다.
     ///
-    /// offset은 <b>3차 에르미트</b>로 만든다 — 이음매에서 위치뿐 아니라 <b>속도까지</b> 이어지게
-    /// 하려는 것이다(단, <see cref="_maxSmoothDistance"/> 목줄이 당겨지는 구간은 예외다 — 그 클램프는
-    /// 위치만 맞출 뿐[C0] 속도까지 잇지는 않아[C1 아님], 클램프가 풀리는 순간 속도가 한 번 꺾인다).
-    /// 지수 감쇠는 시작 기울기가 (갭 / 시간상수)라 갭이 클수록 화면이 튕겨 나갔다
-    /// (실측: 4.788m 갭에서 47.9 m/s). 목표는 Murphy의 projective velocity blending과 같고
-    /// (Believable Dead Reckoning for Networked Games, Game Engine Gems 2), 그 조건을 정확히
-    /// 만족시키는 3차식이 아래 <see cref="Evaluate"/>다.
+    /// offset은 <see cref="Hermite.Position"/>(3차 에르미트)로 만든다 — 이음매에서 위치뿐 아니라
+    /// <b>속도까지</b> 이어지게 하려는 것이다(단, <see cref="_maxSmoothDistance"/> 목줄이 당겨지는
+    /// 구간은 예외다 — 그 클램프는 위치만 맞출 뿐[C0] 속도까지 잇지는 않아[C1 아님], 클램프가
+    /// 풀리는 순간 속도가 한 번 꺾인다). 지수 감쇠는 시작 기울기가 (갭 / 시간상수)라 갭이 클수록
+    /// 화면이 튕겨 나갔다(실측: 4.788m 갭에서 47.9 m/s). 목표는 Murphy의 projective velocity
+    /// blending과 같다(Believable Dead Reckoning for Networked Games, Game Engine Gems 2).
     ///
-    /// 문턱 이름은 언리얼 UCharacterMovementComponent를 따른다. 순수(System.Numerics) — 프레임독립·유닛 테스트 가능.
+    /// 문턱 이름은 언리얼 UCharacterMovementComponent를 따른다. 순수(System.Numerics) — 프레임독립·
+    /// 유닛 테스트 가능. 이 순수성은 어셈블리가 강제하는 게 아니라(GameFramework.Runtime은
+    /// noEngineReferences=false) 이 클래스 하나만의 규칙이다 — UnityEngine 타입을 절대 들이지 않는다.
     /// </summary>
     public class RenderCorrectionSmoother
     {
@@ -26,9 +26,9 @@ namespace GameFramework.Netcode
         private readonly float _maxSmoothDistance;  // 보간 도중 렌더가 sim에서 이 이상 뒤처지지 않게 붙잡는다
         private readonly float _noSmoothDistance;   // 이보다 크면 녹이지 않고 즉시 채택
 
-        private Vector3 _errorStart;        // E(0) — 보정 순간의 위치 갭
-        private Vector3 _errorSlopeStart;   // E'(0)·T — 위치와 같은 단위로 미리 곱해 둔다
-        private float _elapsed;             // 보정 후 경과(초)
+        private Vector3 _errorStart;    // p0 — 보정 순간의 위치 갭(마지막으로 낸 렌더 − 새 sim)
+        private Vector3 _velocityStart; // v0 — 보정 순간의 속도 갭(렌더 − 권위). Hermite가 _smoothTime으로 알아서 스케일한다
+        private float _elapsed;         // 보정 후 경과(초)
         private bool _smoothing;
 
         private Vector3 _lastTarget;        // 마지막으로 낸 렌더 위치
@@ -52,7 +52,9 @@ namespace GameFramework.Netcode
             Vector3 error = Vector3.Zero;
             if (_smoothing)
             {
-                error = Evaluate(_elapsed / _smoothTime);
+                float u = _elapsed / _smoothTime;
+                //  목표(u=1)의 위치·속도가 둘 다 0이라 p1=v1=Vector3.Zero.
+                error = Hermite.Position(_errorStart, _velocityStart, Vector3.Zero, Vector3.Zero, _smoothTime, u);
 
                 //  목줄: 보간 중이라도 이 이상은 뒤처지지 않는다.
                 float lag = error.Length();
@@ -77,7 +79,9 @@ namespace GameFramework.Netcode
         /// </summary>
         public void OnCorrection(Vector3 oldSimPosition, Vector3 newSimPosition, Vector3 newSimVelocity, float deltaTime)
         {
-            //  아직 한 프레임도 안 그렸으면 이을 과거가 없다.
+            //  아직 한 프레임도 안 그렸으면 이을 과거가 없다(스폰 직후 첫 Target보다 보정이
+            //  먼저 올 수 있다 — ReconcileSystem이 UpdateRunner 맨 앞에서 돈다). 이때 블렌드를
+            //  시작하면 _lastTarget이 기본값(원점)이라 캐릭터가 원점에서 스폰 지점으로 미끄러진다.
             if (_hasTarget == false || _smoothTime <= 0f)
             {
                 _smoothing = false;
@@ -104,9 +108,13 @@ namespace GameFramework.Netcode
                 return;
             }
 
+            //  재시드는 oldSimPosition이 아니라 "지금 실제로 그리고 있던 렌더 위치"에서 한다 —
+            //  보정이 블렌드 도중에 도착하는 게 정상 경로다(Reconciler가 배치 전체를 게이트하므로
+            //  ~44%의 틱에서 실제로 열린다). oldSimPosition으로 잡으면 화면이 튄다.
             _errorStart = _lastTarget - newSimPosition;
-            //  E'(0) = (렌더가 가던 속도) − (권위 속도). 시간 단위를 없애려 T를 곱해 둔다.
-            _errorSlopeStart = (_renderVelocity - newSimVelocity) * _smoothTime;
+            //  v0 = (렌더가 가던 속도) − (권위 속도). _renderVelocity는 Advance가 _lastTarget으로
+            //  갱신하므로 블렌드 도중이어도 "실제 화면 속도"이지 sim 속도가 아니다.
+            _velocityStart = _renderVelocity - newSimVelocity;
             _elapsed = deltaTime;
             _smoothing = true;
         }
@@ -114,6 +122,9 @@ namespace GameFramework.Netcode
         /// <summary>한 프레임 진행. 렌더 속도도 여기서 갱신한다(다음 보정의 이음매에 쓴다).</summary>
         public void Advance(float deltaTime)
         {
+            //  _hasPrev 없이 이 첫 렌더 위치(절대 좌표)를 dt로 나누면 가짜 속도가 튄다 — 예를
+            //  들어 y=10에서 스폰해 dt=0.02로 나누면 500 m/s가 되고, 다음 보정이 그 속도에
+            //  끌려 목줄(maxSmoothDistance) 끝까지 튕겨 나간다.
             if (_hasTarget && _hasPrev && deltaTime > 0f)
             {
                 _renderVelocity = (_lastTarget - _prevTarget) / deltaTime;
@@ -140,30 +151,12 @@ namespace GameFramework.Netcode
             _smoothing = false;
             _elapsed = 0f;
             _errorStart = Vector3.Zero;
-            _errorSlopeStart = Vector3.Zero;
+            _velocityStart = Vector3.Zero;
             _lastTarget = Vector3.Zero;
             _prevTarget = Vector3.Zero;
             _renderVelocity = Vector3.Zero;
             _hasTarget = false;
             _hasPrev = false;
-        }
-
-        //  E(0)=시작오차, E'(0)=시작기울기, E(1)=0, E'(1)=0 을 만족하는 유일한 3차식.
-        //  끝에서 기울기까지 0이라 보간이 끝나는 순간에도 속도가 안 튄다.
-        private Vector3 Evaluate(float u)
-        {
-            if (u <= 0f)
-            {
-                return _errorStart;
-            }
-            if (u >= 1f)
-            {
-                return Vector3.Zero;
-            }
-            float u2 = u * u;
-            float u3 = u2 * u;
-            return _errorStart * (2f * u3 - 3f * u2 + 1f)
-                 + _errorSlopeStart * (u3 - 2f * u2 + u);
         }
     }
 }
