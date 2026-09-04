@@ -324,5 +324,82 @@ namespace GameFramework.Tests.Netcode
             s.Reset();
             Assert.AreEqual(new Vector3(9, 0, 0), s.Target(new Vector3(9, 0, 0)));
         }
+
+        //  _hasTarget/_hasPrev를 세워 "이미 몇 프레임 그린" 상태로 만든다. 스폰 직후 상태로는
+        //  스무더가 보정을 아예 시작하지 않아 어떤 테스트도 성립하지 않는다.
+        private static void Warm(RenderCorrectionSmoother smoother)
+        {
+            smoother.Target(System.Numerics.Vector3.Zero);
+            smoother.Advance(0.02f);
+            smoother.Target(System.Numerics.Vector3.Zero);
+            smoother.Advance(0.02f);
+        }
+
+        //  같은 3m를 보정으로 주면 녹고 텔레포트로 주면 안 녹는다 — 그 대비가 이 기능의 전부다.
+        //  앞쪽 단언이 없으면 "3m는 원래 안 녹는데?"와 구분이 안 돼 테스트가 무의미해진다.
+        [Test]
+        public void 문턱_아래_거리는_보정이면_녹고_텔레포트면_안_녹는다()
+        {
+            var moved = new System.Numerics.Vector3(3f, 0f, 0f);
+
+            var smoothed = Make();
+            Warm(smoothed);
+            smoothed.OnCorrection(System.Numerics.Vector3.Zero, moved,
+                                  System.Numerics.Vector3.Zero, 0.02f);
+            Assert.AreNotEqual(moved, smoothed.Target(moved),
+                               "3m 보정이 안 녹으면 이 테스트는 텔레포트를 구분하지 못한다");
+
+            var teleported = Make();
+            Warm(teleported);
+            teleported.OnTeleport();
+
+            Assert.AreEqual(moved, teleported.Target(moved));
+        }
+
+        //  텔레포트 직후의 렌더 속도는 (새 자리 − 옛 자리) / dt 라는 가짜 값이다. 그게 남아 있으면
+        //  바로 다음에 오는 평범한 보정이 그 속도에 끌려 화면을 튕겨 낸다. 텔레포트를 겪은 스무더가
+        //  같은 자리를 처음부터 그린 스무더와 같은 그림을 내야 한다.
+        [Test]
+        public void 텔레포트_다음_보정이_가짜_속도에_끌려가지_않는다()
+        {
+            var far = new System.Numerics.Vector3(400f, 0f, 0f);
+            var corrected = new System.Numerics.Vector3(400.5f, 0f, 0f);
+
+            var teleported = Make();
+            Warm(teleported);
+            teleported.OnTeleport();
+            teleported.Target(far);
+            teleported.Advance(0.02f);
+
+            var fresh = Make();
+            fresh.Target(far);
+            fresh.Advance(0.02f);
+
+            teleported.OnCorrection(far, corrected, System.Numerics.Vector3.Zero, 0.02f);
+            fresh.OnCorrection(far, corrected, System.Numerics.Vector3.Zero, 0.02f);
+
+            Assert.AreEqual(fresh.Target(corrected), teleported.Target(corrected),
+                            "텔레포트를 겪은 쪽이 가짜 속도를 물고 있으면 화면 위치가 달라진다");
+        }
+
+        //  녹이던 도중에 텔레포트가 오면 그 블렌드를 버려야 한다. 안 버리면 옛 오차를 텔레포트한
+        //  자리에 그대로 얹어 그린다.
+        [Test]
+        public void 녹이던_도중_텔레포트가_오면_블렌드를_버린다()
+        {
+            var smoother = Make();
+            smoother.Target(System.Numerics.Vector3.Zero);
+            smoother.Advance(0.02f);
+            smoother.Target(System.Numerics.Vector3.Zero);
+            smoother.Advance(0.02f);
+            smoother.OnCorrection(System.Numerics.Vector3.Zero,
+                                  new System.Numerics.Vector3(1f, 0f, 0f),
+                                  System.Numerics.Vector3.Zero, 0.02f);
+
+            smoother.OnTeleport();
+
+            var moved = new System.Numerics.Vector3(50f, 0f, 0f);
+            Assert.AreEqual(moved, smoother.Target(moved));
+        }
     }
 }

@@ -119,6 +119,21 @@ namespace GameFramework.Netcode
             _smoothing = true;
         }
 
+        /// <summary>
+        /// 의도된 순간이동임을 알린다. 크기를 보지 않고 즉시 채택한다 — 거리 문턱
+        /// (<see cref="_noSmoothDistance"/>)은 <b>큰 랙</b>을 위한 안전망이지 의도의 신호가 아니라서,
+        /// 문턱 아래 짧은 텔레포트는 그대로 두면 미끄러진다.
+        /// </summary>
+        public void OnTeleport()
+        {
+            _smoothing = false;
+            _elapsed = 0f;
+            //  이어지지 않는 이동이라 "직전 프레임"이 없다. 안 지우면 다음 Advance가
+            //  (새 자리 − 옛 자리) / dt 라는 가짜 속도를 만들어 다음 보정이 그걸 물고 튄다.
+            _hasPrev = false;
+            _renderVelocity = Vector3.Zero;
+        }
+
         /// <summary>한 프레임 진행. 렌더 속도도 여기서 갱신한다(다음 보정의 이음매에 쓴다).</summary>
         public void Advance(float deltaTime)
         {
