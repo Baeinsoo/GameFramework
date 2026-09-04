@@ -35,5 +35,16 @@ namespace GameFramework.World
             if (Vector3EqualityComparer.instance.Equals(v.Linear.ToUnity(), value)) return;
             v.Linear = value.ToNumerics();
         }
+
+        /// <summary>
+        /// 이어지지 않는 이동. 위치를 쓰고 <see cref="Transform.TeleportCount"/>를 올린다 —
+        /// 받는 쪽이 이 이동을 녹이지 않고 즉시 반영하게 하려는 것이다.
+        /// </summary>
+        public static void Teleport(this Entity e, Vector3 value)
+        {
+            var t = e.Get<Transform>();
+            t.Position = value.ToNumerics();   // SetPosition의 "같으면 안 쓰기"를 거치지 않는다
+            t.TeleportCount++;
+        }
     }
 }
