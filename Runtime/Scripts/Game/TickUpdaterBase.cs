@@ -28,6 +28,11 @@ namespace GameFramework.Runner
         public int catchUpCappedCount { get; private set; }
         public long maxTicksBehind { get; private set; }
 
+        // 틱 시스템이 던진 예외로 루프가 끝났나. 조용히 죽던 것을 기록으로 남긴다 —
+        // 위 두 계측과 같은 목적이다("이 측정 창에 멈춤이 있었나").
+        public bool isFaulted { get; private set; }
+        public long faultedTick { get; private set; }
+
         public long processibleTick
         {
             get
@@ -48,6 +53,8 @@ namespace GameFramework.Runner
             this.tick = tick;
             this.interval = interval;
             this.elapsedTime = elapsedTime;
+            isFaulted = false;
+            faultedTick = 0;
 
             if (loop != null)
             {
@@ -95,7 +102,11 @@ namespace GameFramework.Runner
 
                 while (tick <= frameEnd)
                 {
-                    TickBody();
+                    if (TryTickBody() == false)
+                    {
+                        //  의도적으로 끝낸다. 아래 TryTickBody 주석 참고.
+                        yield break;
+                    }
                 }
 
                 yield return null;
@@ -104,10 +115,39 @@ namespace GameFramework.Runner
             }
         }
 
-        private void TickBody()
+        /// <summary>
+        /// 한 틱을 돌린다. 틱 시스템이 예외를 던지면 <b>루프를 끝내고</b> false를 돌려준다.
+        /// </summary>
+        /// <remarks>
+        /// 예외를 삼키고 계속 돌지 않는다 — 결정론 시뮬에서 그건 "멈춤"을 "틀린 상태로 계속"과
+        /// 맞바꾸는 것이고, 넷코드에선 훨씬 찾기 어려운 어긋남이 된다. 멈추는 동작은 예전과 같고,
+        /// 바뀌는 것은 <b>그 사실이 드러나는지</b> 하나다.
+        ///
+        /// <para>이 catch가 없을 때 실제로 이랬다(2026-09-06): 추격자에게 잡히는 순간 입력
+        /// 시스템이 없는 엔티티를 읽어 NRE를 냈고, 코루틴이 죽어 클라 시뮬 전체가 멈췄다.
+        /// 콘솔에는 그 NRE 한 줄뿐이었고 남의 캐릭터는 다른 경로로 계속 움직여 정상처럼 보였다.</para>
+        ///
+        /// <para>테스트 seam 때문에 protected다 — 코루틴은 EditMode에서 못 돌리므로,
+        /// 테스트가 이 클래스를 상속해 이 메서드만 직접 부른다.</para>
+        /// </remarks>
+        protected bool TryTickBody()
         {
-            onTick?.Invoke(tick);
+            try
+            {
+                onTick?.Invoke(tick);
+            }
+            catch (Exception e)
+            {
+                isFaulted = true;
+                faultedTick = tick;
+
+                Debug.LogException(e);
+                Debug.LogError($"[TickUpdater] 시뮬레이션이 tick {tick}에서 멈췄다 — 이 뒤로 틱이 돌지 않는다. 위 예외가 원인이다.");
+                return false;
+            }
+
             tick++;
+            return true;
         }
 
         protected virtual void OnElapsedTimeUpdate()
