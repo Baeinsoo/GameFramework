@@ -17,8 +17,8 @@ namespace GameFramework.World
         public abstract void SetVelocity(Vector3 linear);
 
         /// <summary>
-        /// 물리가 굴리지 않게(키네마틱) 하거나 되돌린다. 굴리지 않는 몸은 우리가 놓은 자리에 그대로 있다 —
-        /// 판치기에서 치운 동전을 판 옆에 세워 둘 때 쓴다.
+        /// 물리가 굴리지 않게(키네마틱) 하거나 되돌린다. 굳힌 몸은 우리가 놓은 자리에 그대로 있고 아무것과도
+        /// 부딪히지 않는다 — 판치기에서 치운 동전을 판 옆에 세워 둘 때 쓴다.
         /// </summary>
         public abstract void SetKinematic(bool kinematic);
 
