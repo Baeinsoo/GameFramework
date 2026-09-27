@@ -16,6 +16,12 @@ namespace GameFramework.World
         public abstract void SetRotation(Quaternion rotation);
         public abstract void SetVelocity(Vector3 linear);
 
+        /// <summary>
+        /// 물리가 굴리지 않게(키네마틱) 하거나 되돌린다. 굴리지 않는 몸은 우리가 놓은 자리에 그대로 있다 —
+        /// 판치기에서 치운 동전을 판 옆에 세워 둘 때 쓴다.
+        /// </summary>
+        public abstract void SetKinematic(bool kinematic);
+
         /// <summary>물리 엔진이 굴리는 몸(다이나믹)의 결과를 World로 되읽을 때 쓴다.</summary>
         public abstract Vector3 GetPosition();
 
