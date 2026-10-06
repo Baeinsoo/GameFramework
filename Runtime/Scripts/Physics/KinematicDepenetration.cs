@@ -21,9 +21,10 @@ namespace GameFramework.Physics
             Vector3 center = position + rotation * own.center;
             float radius = own.radius;
             float halfSpan = Mathf.Max(own.height * 0.5f - radius, 0f);
-            Vector3 up = rotation * Vector3.up;
-            Vector3 p1 = center - up * halfSpan;
-            Vector3 p2 = center + up * halfSpan;
+            // own.direction: 0=X, 1=Y, 2=Z — 캡슐이 누운 축을 따라 캡(cap)을 벌린다.
+            Vector3 axis = rotation * (own.direction == 0 ? Vector3.right : own.direction == 2 ? Vector3.forward : Vector3.up);
+            Vector3 p1 = center - axis * halfSpan;
+            Vector3 p2 = center + axis * halfSpan;
 
             Collider[] overlaps = UnityEngine.Physics.OverlapCapsule(p1, p2, radius, layerMask, QueryTriggerInteraction.Ignore);
             Vector3 total = Vector3.zero;

@@ -34,5 +34,30 @@ namespace GameFramework.World.Tests
             // 여기서 실수로 <=를 쓰면 지금 마스터데이터와 위 라운드트립 테스트가 깨진다.
             Assert.DoesNotThrow(() => new CapsuleShape(0.45f, 0.9f));
         }
+
+        [Test]
+        public void LyingCapsuleIsWideAndShort()
+        {
+            var c = CapsuleShape.Lying(0.45f, 1.28f);
+            Assert.AreEqual(CapsuleAxis.X, c.Axis);
+            Assert.AreEqual(0.45f, c.Radius, 1e-5f);
+            Assert.AreEqual(0.9f, c.Height, 1e-5f);    // 세로 = 지름
+            Assert.AreEqual(1.28f, c.Length, 1e-5f);   // 가로 전체
+        }
+
+        [Test]
+        public void UprightCapsuleKeepsMeaning()
+        {
+            var c = new CapsuleShape(0.35f, 1.5f);
+            Assert.AreEqual(CapsuleAxis.Y, c.Axis);
+            Assert.AreEqual(1.5f, c.Length, 1e-5f);    // Y면 Length == Height
+        }
+
+        [Test]
+        public void LyingRejectsLengthShorterThanDiameter()
+        {
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => CapsuleShape.Lying(0.5f, 0.9f));
+            Assert.DoesNotThrow(() => CapsuleShape.Lying(0.45f, 0.9f));   // 경계 = 공
+        }
     }
 }
