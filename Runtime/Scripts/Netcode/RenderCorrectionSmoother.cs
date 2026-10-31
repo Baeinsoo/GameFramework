@@ -17,7 +17,7 @@ namespace GameFramework.Netcode
     /// 유닛 테스트 가능. 이 순수성은 어셈블리가 강제하는 게 아니라(GameFramework.Runtime은
     /// noEngineReferences=false) 이 클래스 하나만의 규칙이다 — UnityEngine 타입을 절대 들이지 않는다.
     /// </summary>
-    public class RenderCorrectionSmoother
+    public class RenderCorrectionSmoother : IRenderCorrectionSmoother
     {
         //  0이면 스무딩을 아예 안 한다(언리얼 NetworkSmoothingMode.Disabled). 내가 조종하는 몸이
         //  그렇다 — 녹이는 동안 입력과 화면이 어긋나 조작감이 무너진다.
